@@ -11,14 +11,14 @@
 - [*知识点3: 代码库问答（入门第一步）*](#id3)
 - [*知识点4: 编辑代码与 Plan Mode*](#id4)
 - [*知识点5: 工具集成与验证循环*](#id5)
-- [*知识点6: Plan Mode 五步工作流（扩充）*](#id6)
-- [*知识点7: Ask → Plan → Auto 三模式切换（扩充）*](#id7)
-- [*知识点8: 上下文管理基础（扩充）*](#id8)
+- [*知识点6: 常见3种工作流*](#id6)
+- [*知识点7: Ask → Plan → Auto 三模式切换*](#id7)
+- [*知识点8: 上下文管理基础*](#id8)
 
 ---
 
 <a id="id1"></a>
-## ✅ 知识点1: Claude Code 安装 (Installation)
+## ✅ 知识点1: Claude Code 安装 
 
 **如何安装CC...**
 - Claude Code 是一种**全代理式（Agentic）AI 编程助手**——不同于传统的逐行代码补全，它面向的是**构建功能、编写整个函数/文件、修复整个 bug**
@@ -47,7 +47,7 @@
 ---
 
 <a id="id2"></a>
-## ✅ 知识点2: 初始化配置 (Initial Setup)
+## ✅ 知识点2: 初始化配置
 
 **下载好之后，推荐配置指令...**
 - 首次启动后，通过一系列 `/` 斜杠命令完成环境定制
@@ -76,7 +76,7 @@
 ---
 
 <a id="id3"></a>
-## ✅ 知识点3: 代码库问答——入门第一步 (Codebase Q&A)
+## ✅ 知识点3: 代码库问答——入门第一步 
 
 **那么接下来就是了解codebase...**
 - Claude Code 的最佳"入门姿势"不是直接写代码，而是**先用它理解代码库**
@@ -99,149 +99,118 @@
 - `at-mention(@引用)` — 使用 `@` 符号引用文件/文件夹/Issue，将指定内容拉入上下文窗口
 
 > 💡 **理解技巧**：Claude 不只是做文本搜索——它会**深挖一层**。例如问"这个 class 怎么用"，它不会只搜类名，而是找实例化示例、调用模式，给出的答案接近 Wiki 文档的质量
-> 🔄 **知识关联**：代码库问答的效果依赖于项目 `CLAUDE.md` 提供的上下文——详见 [02-workflows.md](./02-workflows.md)
+
 
 
 ---
 
 <a id="id4"></a>
-## ✅ 知识点4: 编辑代码与 Plan Mode (Editing Code & Plan Mode)
+## ✅ 知识点4: 编辑代码与 Plan Mode 
 
 **了解完了codebase，接下来就可以开发了...**
 
 - **关键原则**：**在让 Claude 写代码之前，先让它做计划。最容易拿到理想结果的做法是让它先思考**
-- 实现 Plan Mode **不需要任何特殊工具或模式切换**——只需要在 prompt 中说一句："**Before you write code, make a plan.**"
-- Claude Code 被赋予了一小组工具：编辑文件、运行 Bash 命令、搜索文件。它会**自己编排这些工具的顺序**——先探索代码 → 头脑风暴 → 最后执行编辑。你不需要指定每步用哪个工具
+    - 实现 Plan Mode **不需要任何特殊工具或模式切换**——只需要在 prompt 中说一句："**Before you write code, make a plan.**"
+    - Claude Code 被赋予了一小组工具：编辑文件、运行 Bash 命令、搜索文件，它会**自己编排这些工具的顺序**，你不需要指定每步用哪个工具
+    - **工作流**：**先探索代码 → 头脑风暴 → 制定计划 → 用户审批得到批准**
 
-- 高频咒语 "**commit, push, PR**"：Claude 会自动生成 commit message、创建分支、推送、创建 PR——它会自己看 Git log 推断 commit 格式
 
-**命令/配置示例**
-```bash
-# Plan Mode——最简单的方式
-"Before you write code, make a plan. Run it by me for approval."
-
-# 端到端工作流
-"Implement user authentication. Before you write code, make a plan for my approval.
-Once done, run the tests, and if they pass, commit, push, PR."
-
-# 纠偏
-# 如果 Claude 跑偏了方向，按 Esc 停止，告诉它哪里需要调整，让它重做
-```
-
-**注意点**
-- ⚠️ **反模式**：直接让 Claude 实现一个 3000 行的巨大功能——有时一次就对了，但更常见的情况是**做出来的东西完全不是你想要的**
-- 💡 **理解技巧**：Plan Mode 的价值在于**在投入 token 写代码之前，先用少量 token 对齐方向**。花 2 分钟打磨计划 = 避免 20 分钟的重写
-- 💡 **理解技巧**：Claude 能理解 "commit, push, PR" 这条指令不是因为有专门的系统提示——纯粹是因为**模型本身足够聪明**，知道怎么操作 Git 和 GitHub
-- 🔄 **知识关联**：Plan Mode 的具体工作流展开见 [知识点6](#id6)；模式切换方式见 [知识点7](#id7)
 
 ---
 
 <a id="id5"></a>
-## ✅ 知识点5: 工具集成与验证循环 (Tool Integration & Verification Loop)
+## ✅ 知识点5: 工具集成与验证循环 
 
-**理论**
-- 熟悉基本编辑后，下一步是**让 Claude 接入你团队已有的工具**，这是 Claude Code 真正发挥威力的地方
+熟悉基本编辑后，下一步是**让 Claude 接入你团队已有的工具**
 - 两类工具：
   - **Bash CLI 工具**：告诉 Claude 你的 CLI 名称，它可以用 `--help` 自学用法
   - **MCP 工具**：通过 MCP（Model Context Protocol）接入外部服务，Claude 可以代表你使用这些工具
-- **验证循环是提升质量的终极技巧**：给 Claude 一个能检查自己产出的方式——单元测试、Puppeteer 截图、iOS 模拟器——然后让它自己迭代
-- 例如：给 Claude 一个 UI mock，"build this web UI" → 第一版还行 → 让它用 Puppeteer 截图比对 → 自动迭代 2-3 轮 → **几乎完美**
-- 无论什么领域，只要给 Claude 一个**看到自己结果**的方式，它就会自驱动改进
+- **结合工具的 3 中最常见工作流**：
 
-**命令/配置示例**
-```bash
-# 告诉 Claude 你的 CLI 工具
-"Use our CLI 'barley' to deploy this. Run 'barley --help' first to learn how to use it."
+> 📋 **术语提醒**：`MCP(Model Context Protocol)` — Anthropic 开源的标准协议，让 LLM 与外部工具/数据源安全通信
 
-# 验证循环——三种工作流模式
-# 1. 探索 + 计划 + 确认（适合新功能）
-"Explore the auth module, make a plan, and run it by me before coding."
 
-# 2. 自动验证迭代（适合 UI / 测试）
-"Build this UI from the mock. Use Puppeteer to screenshot and compare. Iterate 3 times."
-
-# 3. 测试驱动修复（适合 bug 修复）
-"Fix this bug. Run 'npm test' after each attempt. Keep going until all tests pass."
-```
-
-**注意点**
-- 💡 **理解技巧**："给 Claude 一个验证自己产出的方式"是这次演讲中反复强调的**第一技巧**——有了反馈循环，最终质量提升 2-3 倍
-- 💡 **理解技巧**：Claude 第一遍通常做得"还不错"（pretty good），但让它看到结果后迭代 2-3 轮，就能做到"几乎完美"（almost perfect）
-- ⚠️ **前提条件**：项目必须有可自动化的验证手段（测试、lint、构建、截图）。如果没有，**先让 Claude 写测试，再让 Claude 写代码**
-- 🔄 **知识关联**：MCP 工具的详细配置见 [03-advanced-patterns.md](./03-advanced-patterns.md)；验证循环的更深入讨论见 [02-workflows.md](./02-workflows.md)
-- 📋 **术语提醒**：`MCP(Model Context Protocol)` — Anthropic 开源的标准协议，让 LLM 与外部工具/数据源安全通信
 
 ---
 
 <a id="id6"></a>
-## ✅ 知识点6: Plan Mode 五步工作流（扩充） (Five-Step Plan Mode Workflow)
+## ✅ 知识点6: 常见3种工作流
 
-**理论**
-- Plan Mode 的核心逻辑：**在花 token 写代码之前，先花 token 想清楚写什么**。前者浪费的是时间和代码质量，后者是可控的成本
-- 推荐的五步工作流：
 
-| 步骤 | 模式 | 职责 | 产出 |
-|------|------|------|------|
-| **Explore** | Ask | 阅读代码、搜索 Web、理解上下文 | 对问题和现有代码的深入理解 |
-| **Plan** | Plan | 设计实施方案，列出修改清单 | 结构化的实施计划 |
-| **Confirm** | Ask/Plan | 人类审查计划，提出修改意见 | 确认的实施计划 |
-| **Code** | Auto | Claude 按计划执行编码 | 代码变更 |
-| **Commit** | Auto | 运行测试、lint、格式化 → 提交 | 干净的 commit |
 
-- 关键点：**Confirm 是人类介入的唯一节点**——在 Code 之前确保方向正确，Code 之后让 Claude 自己验证和提交
+**常见工作流程**
 
-**注意点**
-- 💡 **理解技巧**：五个步骤中前三步（EPC）决定质量上限，后两步（CC）决定执行效率。不要在 C&C 上过度 micromanage
-- 💡 **理解技巧**：Plan Mode 的 ROI——花 2 分钟打磨计划 = 避免 20 分钟的重写和调试。对于超过 5 分钟的任务，Plan Mode 几乎总是净节省
-- ⚠️ **反模式**：跳过 Confirm 直接 Code = 赌博。Plan Mode 是高质量产出的核心前提
-- 🔄 **知识关联**：Code → Commit 之间的验证环节是 [知识点5](#id5) 验证循环的核心战场
+- **验证循环是提升质量的终极技巧**：给 Claude 一个能检查自己产出的方式——单元测试、Puppeteer 截图、iOS 模拟器——然后让它自己迭代
+
+- **3 种工作流：**
+    - 第一种：先分析、再规划、确认后编码
+    - 第二种：测试驱动开发（TDD），先写测试再写实现
+    - 第三种：视觉驱动开发，以截图对比 mock 为目标迭代
+
+- **实际例子：**
+    1. 探索 › 计划 › 确认 › 编码 › 提交
+        - 先找出 `Issue #983` 的**根本原因**
+        - 提出**多个修复方案**
+        - 让用户选择方案后，再开始编码
+        - 使用 `ultrathink`（深度思考模式）
+
+    2. 写测试 › 提交 › 编码 › 迭代 › 提交
+        - 为 `@utils/markdown.ts` **编写测试**，确保链接能正确渲染
+        - 注意：此时测试**不会通过**，因为链接功能尚未实现
+        - **先提交**测试代码
+        - 再更新代码，使测试通过
+
+    3. 写代码 › 截图 › 迭代
+        - 按照 `[mock.png]` **实现界面**
+        - 使用 **Puppeteer** 截图
+        - 不断**迭代调整**，直到效果与 mock 一致
+
+
+> 💡 **理解技巧**：无论什么领域，只要给 Claude 一个**看到自己结果**的方式，它就会自驱动改进
+
 
 ---
 
 <a id="id7"></a>
-## ✅ 知识点7: Ask → Plan → Auto 三模式切换（扩充） (Mode Switching)
+## ✅ 知识点7: Ask → Plan → Auto 三模式切换
 
-**理论**
+**工作模式有3种...**
 - Claude Code 有三种工作模式，通过 `Shift+Tab` 循环切换：
 
-| 模式 | 图标 | 行为 | 适用场景 |
-|------|------|------|----------|
-| **Ask** | 💬 | 只回答问题，不编辑文件 | 代码库问答、探索理解 |
-| **Plan** | 📋 | 只读研究和规划，不写入 | 复杂任务的设计阶段 |
-| **Auto** | ⚡ | 全自动执行（编辑自动接受，Bash 仍需审批） | 简单修改、已确认的实施方案 |
+    | 模式 | 图标 | 行为 | 适用场景 |
+    |------|------|------|----------|
+    | **Ask** | 💬 | 只回答问题，不编辑文件 | 代码库问答、探索理解 |
+    | **Plan** | 📋 | 只读研究和规划，不写入 | 复杂任务的设计阶段 |
+    | **Auto** | ⚡ | 全自动执行（编辑自动接受，Bash 仍需审批） | 简单修改、已确认的实施方案 |
 
 - Auto Mode 下编辑操作**自动接受**（无需逐条确认），Bash 命令仍需审批。如果 Claude 跑偏了，随时可以要求它撤销
 - 使用场景：写单元测试时让 Claude 迭代 → 切到 Auto Mode，不用每条编辑都点确认
 
-**注意点**
-- ⚠️ **关键用法**：Plan Mode 不是"可选项"——它是高质量产出的核心前提。在 Plan Mode 下 Claude 只能读不能写，可以在它动手前充分纠正方向
-- 💡 **理解技巧**：Ask 适合"探索"、Plan 适合"设计"、Auto 适合"执行"。一个任务的三个阶段对应三种模式
-- 💡 **理解技巧**：最简单的 Plan Mode 用法不需要切换模式——直接在 prompt 里说"Before you write code, make a plan"即可
-- 🔄 **知识关联**：Plan Mode 的具体工作流见 [知识点6](#id6)
+> 💡 **理解技巧**：Ask 适合"探索"、Plan 适合"设计"、Auto 适合"执行"。一个任务的三个阶段对应三种模式
+> 💡 **理解技巧**：最简单的 Plan Mode 用法不需要切换模式——直接在 prompt 里说"Before you write code, make a plan"即可
+
 
 ---
 
 <a id="id8"></a>
-## ✅ 知识点8: 上下文管理基础（扩充） (Context Management Basics)
+## ✅ 知识点8: 上下文管理基础
 
-**理论**
-- Claude Code 使用上下文窗口来"记住"当前会话的所有内容。但上下文越大，模型表现越差
-- **40% 红线**：保持会话上下文使用量在 40% 以下——即使模型支持 1M token，到了 300-400K token 时智能就开始退化
+**上下文管理也有陷阱...**
+- Claude Code 使用上下文窗口来"记住"当前会话的所有内容。
+- **陷阱**：不要在一个会话里塞太多不相关的任务。上下文污染后 Claude 的行为会越来越不可预测
+    - **40% 红线**：保持会话上下文使用量在 40% 以下——即使模型支持 1M token，到了 300-400K token 时智能就开始退化
 - `/compact` 是核心的上下文瘦身命令——它会让 Claude 总结当前会话的关键信息，丢弃无关细节。可以附加提示（hint）引导压缩方向
 - `/clear` 完全重置上下文，适合切换到全新任务
 - `@` 引用文件是**精确控制上下文**的最佳手段——只把相关文件拉进来，而不是让 Claude 自己搜索
 
-**命令/配置示例**
-```bash
-/compact                  # 压缩上下文，保留关键信息
-/compact "focus on auth"  # 压缩时聚焦 auth 相关内容
-/clear                    # 完全清空上下文（确认后）
-```
+- **命令/配置示例**
+    ```bash
+    /compact                  # 压缩上下文，保留关键信息
+    /compact "focus on auth"  # 压缩时聚焦 auth 相关内容
+    /clear                    # 完全清空上下文（确认后）
+    ```
 
-**注意点**
-- ⚠️ **陷阱**：不要在一个会话里塞太多不相关的任务。上下文污染后 Claude 的行为会越来越不可预测
-- 💡 **理解技巧**：把上下文窗口想象成"工作记忆"——你一次只能专注几件事，Claude 也一样。子代理（[03-advanced-patterns.md](./03-advanced-patterns.md)）就是用来把大任务拆分成独立工作记忆的
-- 🔄 **知识关联**：子代理的上下文隔离是解决上下文膨胀的根本方案，详见 [03-advanced-patterns.md](./03-advanced-patterns.md)
+
 
 ---
 
@@ -253,11 +222,4 @@ Once done, run the tests, and if they pass, commit, push, PR."
 4. **给 Claude 一个验证自己产出的方式**——测试、截图、lint 都行，让它看到自己的结果，质量提升 2-3 倍
 5. **上下文不要超过 40%**——一旦接近红线就用 `/compact` 或新建子代理
 
-## 📌 实践速查
-
-- **安装速查**：`npm install -g @anthropic-ai/claude-code` → `claude`
-- **初始配置速查**：`/init` → `/terminal-setup` → `/theme` → `/allowed-tools`
-- **入门流程速查**：代码库问答（Ask 模式）→ 编辑代码 → Plan Mode → 验证循环 → commit, push, PR
-- **Plan Mode 速查**：说 "Before you write code, make a plan. Run it by me for approval." 即可
-- **验证循环速查**：`npm test` → 失败 → 自动修复 → `npm test` → 通过
-- **上下文命令速查**：`/compact` 压缩 | `/compact "hint"` 聚焦压缩 | `/clear` 重置
+---
