@@ -107,11 +107,12 @@
 <a id="id4"></a>
 ## ✅ 知识点4: 编辑代码与 Plan Mode (Editing Code & Plan Mode)
 
-**理论**
-- 熟悉代码库问答后，下一步是**让 Claude 编辑代码**
-- Claude Code 被赋予了一小组工具：编辑文件、运行 Bash 命令、搜索文件。它会**自己编排这些工具的顺序**——先探索代码 → 头脑风暴 → 最后执行编辑。你不需要指定每步用哪个工具
-- **关键原则**：在让 Claude 写代码之前，先让它做计划。最容易拿到理想结果的做法是让它先思考——"brainstorm ideas, make a plan, run it by me, ask for approval before you write code"
+**了解完了codebase，接下来就可以开发了...**
+
+- **关键原则**：**在让 Claude 写代码之前，先让它做计划。最容易拿到理想结果的做法是让它先思考**
 - 实现 Plan Mode **不需要任何特殊工具或模式切换**——只需要在 prompt 中说一句："**Before you write code, make a plan.**"
+- Claude Code 被赋予了一小组工具：编辑文件、运行 Bash 命令、搜索文件。它会**自己编排这些工具的顺序**——先探索代码 → 头脑风暴 → 最后执行编辑。你不需要指定每步用哪个工具
+
 - 高频咒语 "**commit, push, PR**"：Claude 会自动生成 commit message、创建分支、推送、创建 PR——它会自己看 Git log 推断 commit 格式
 
 **命令/配置示例**
