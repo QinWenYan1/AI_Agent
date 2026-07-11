@@ -221,117 +221,128 @@
 <a id="id7"></a>
 ## ✅ 知识点7: PostToolUse Hook
 
-**理论**
-- `PostToolUse` 在 Claude 每次 Write/Edit 文件后自动运行格式化工具
+**来看看一些 Hook 例子...**
+- **`PostToolUse` 在 Claude 每次 Write/Edit 文件后自动运行格式化工具**
 - 为什么需要：Claude 生成的代码**大约 10% 的情况格式不符合项目标准**（缩进、引号风格、换行等）。PostToolUse Hook 自动修复这些，人类无需手动指出
+> 💡 **理解技巧**：这个 Hook 本质上是在说"每次 Claude 写文件后，自动跑项目的格式化工具，如果失败就忽略"。是质量兜底，不是流程阻塞
 - 写法关键：`"command"` 后面加 `|| true` 防止格式化失败阻塞 Claude 的后续操作
 
-**命令/配置示例**
-```json
-{
-  "PostToolUse": [
-    {
-      "matcher": "Write|Edit",
-      "hooks": [
-        { "type": "command", "command": "bun run format || true" }
-      ]
-    }
-  ]
-}
-```
+- **命令/配置示例**
+  ```json
+  {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bun run format || true" }
+        ]
+      }
+    ]
+  }
+  ```
 
-**注意点**
-- 💡 **理解技巧**：这个 Hook 本质上是在说"每次 Claude 写文件后，自动跑项目的格式化工具，如果失败就忽略"。是质量兜底，不是流程阻塞
-- ⚠️ **关键警告**：`|| true` 很重要——没有它，格式化失败会导致 Claude 的操作被标记为失败，打断工作流
-- 🔄 **知识关联**：PostToolUse + [知识点9](#id9) 验证循环 = 代码质量和格式的双重保障
+
+
+> ⚠️ **关键警告**：`|| true` 很重要——没有它，格式化失败会导致 Claude 的操作被标记为失败，打断工作流
+
 
 ---
 
 <a id="id8"></a>
 ## ✅ 知识点8: Stop Hook 与质量守护
 
-**理论**
+**Hook 如何保证产出质量...**
 - `Stop` Hook 在 Claude 完成一个推理回合后触发。它可以注入额外的检查指令
 - 使用方式：Stop Hook 提醒 Claude 在结束前验证自己的产出——"检查是否通过所有测试"、"确认没有遗漏的边界情况"
 - 这本质上是在自动化"验证循环"哲学——不让 Claude 在没验证自己的工作时停下
 
-**命令/配置示例**
-```json
-{
-  "Stop": [
-    {
-      "hooks": [
-        {
-          "type": "prompt",
-          "prompt": "Before finishing, verify your changes: run tests, check for lint errors, and confirm the original task requirements are met."
-        }
-      ]
-    }
-  ]
-}
-```
+> 💡 **理解技巧**：可以把 Stop Hook 理解为"临走前的检查清单"——每次都提醒 Claude 自检，比人类事后发现再回来修更高效
 
-**注意点**
-- 💡 **理解技巧**：可以把 Stop Hook 理解为"临走前的检查清单"——每次都提醒 Claude 自检，比人类事后发现再回来修更高效
-- 🔄 **知识关联**：Stop Hook 是 [知识点9](#id9) 验证循环在 Hook 层面的自动化实现
+- **命令/配置示例**
+  ```json
+  {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Before finishing, verify your changes: run tests, check for lint errors, and confirm the original task requirements are met."
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
 
 ---
 
 <a id="id9"></a>
 ## ✅ 知识点9: 验证循环进阶
-**理论**
-- 验证循环的核心理念：**给 Claude 一个验证自己产出的方式——有了这个反馈循环，最终质量会提升 2-3 倍**
-- 核心机制：让 Claude 自动运行验证命令（测试、lint、构建），看到失败输出后自己修复，循环直到通过。人类只需定义"什么算通过"
 
-| 验证类型 | 命令/工具 | 适用场景 |
-|----------|-----------|----------|
-| 单元测试 | `npm test`, `pytest` | 逻辑正确性 |
-| Lint | `eslint`, `ruff` | 代码风格 |
-| 类型检查 | `tsc --noEmit`, `mypy` | 类型安全 |
-| 构建 | `npm run build`, `make` | 编译/打包 |
-| 浏览器截图 | Puppeteer, Chrome DevTools MCP | UI 视觉验证 |
-| iOS 模拟器 | Xcode Simulator | 移动端验证 |
+**CC如何提升产出质量的?**
 
-**命令/配置示例**
-```bash
-# 在 Claude Code 会话中的自然语言指令：
-"帮我实现用户登录功能。完成后运行 npm test，如果有失败的测试就修复它，直到全部通过。然后再跑 eslint 和 tsc。"
-```
+- **验证循环的核心理念**：**给 Claude 一个验证自己产出的方式——有了这个反馈循环，最终质量会提升 2-3 倍**
+- **核心机制**：让 Claude 自动运行验证命令（测试、lint、构建），看到失败输出后自己修复，循环直到通过。人类只需定义"什么算通过"
 
-**注意点**
-- 💡 **理解技巧**：验证循环的精髓是"让 Claude 看到自己的错误"——模型看到测试失败输出后的修复能力远超"凭空猜测正确性"。不是"写代码 → 人类检查"，而是"写代码 → 自动验证 → 自动修复 → 再验证 → 通过"
-- ⚠️ **关键前提**：项目必须有可自动化的验证手段（测试、lint、构建）。如果没有，先让 Claude 写测试，再让 Claude 写代码
-- 🔄 **知识关联**：验证循环在 [01-foundation.md](./01-foundation.md) 中有基础介绍；通过 Stop Hook 可实现自动化
+> 💡 **理解技巧**：验证循环的精髓是"让 Claude 看到自己的错误"——模型看到测试失败输出后的修复能力远超"凭空猜测正确性"。不是"写代码 → 人类检查"，而是"写代码 → 自动验证 → 自动修复 → 再验证 → 通过"
+
+> ⚠️ **关键前提**：项目必须有可自动化的验证手段（测试、lint、构建）。如果没有，先让 Claude 写测试，再让 Claude 写代码
+
+- **验证标准类型**：
+
+  | 验证类型 | 命令/工具 | 适用场景 |
+  |----------|-----------|----------|
+  | 单元测试 | `npm test`, `pytest` | 逻辑正确性 |
+  | Lint | `eslint`, `ruff` | 代码风格 |
+  | 类型检查 | `tsc --noEmit`, `mypy` | 类型安全 |
+  | 构建 | `npm run build`, `make` | 编译/打包 |
+  | 浏览器截图 | Puppeteer, Chrome DevTools MCP | UI 视觉验证 |
+  | iOS 模拟器 | Xcode Simulator | 移动端验证 |
+
+- **自动验证手段**：Stop, PostToolUse 等 Hook 在验证阶段执行配置好的验证工具
+
+- **命令/配置示例**
+  ```bash
+  # 在 Claude Code 会话中的自然语言指令：
+  "帮我实现用户登录功能。
+  完成后运行 npm test，如果有失败的测试就修复它，直到全部通过。
+  然后再跑 eslint 和 tsc。"
+  ```
+
+> 🔄 **知识关联**：验证循环在 [01-foundation.md](./01-foundation.md) 中有基础介绍；通过 Stop Hook 可实现自动化
 
 ---
 
 <a id="id10"></a>
 ## ✅ 知识点10: 上下文管理进阶
 
-**理论**
+**这里**
 - 上下文管理是 Claude Code 使用中**最容易被忽视但影响最大**的技能
 - 核心原则：保持会话上下文 ≤ 40%，300-400K token 后智能开始退化
 - **进阶策略**：
 
-| 策略 | 命令 | 使用时机 |
-|------|------|----------|
-| 压缩上下文 | `/compact` | 上下文 > 30% 时主动执行 |
-| 带提示压缩 | `/compact "keep auth logic"` | 切换焦点但保留特定上下文 |
-| 清空重生 | `/clear` + 新 prompt | 完全切换任务方向 |
-| 回退修正 | `Esc × 2`（Double-Esc） | Claude 跑偏时回退，不污染上下文 |
-| 子代理卸载 | 派生子代理 | 大任务的子模块用独立上下文 |
+  | 策略 | 命令 | 使用时机 |
+  |------|------|----------|
+  | 压缩上下文 | `/compact` | 上下文 > 30% 时主动执行 |
+  | 带提示压缩 | `/compact "keep auth logic"` | 切换焦点但保留特定上下文 |
+  | 清空重生 | `/clear` + 新 prompt | 完全切换任务方向 |
+  | 回退修正 | `Esc × 2`（Double-Esc） | Claude 跑偏时回退，不污染上下文 |
+  | 子代理卸载 | 派生子代理 | 大任务的子模块用独立上下文 |
 
-**命令/配置示例**
-```bash
-/compact                         # 压缩上下文
-/compact "focus on payment module"  # 聚焦压缩
-/clear                           # 清空（会丢失当前会话所有上下文！）
-```
+> ⚠️ **关键警告**：`/clear` 是不可逆的——当前会话所有对话记忆都会丢失。只在确实需要全新开始时使用
 
-**注意点**
-- ⚠️ **关键警告**：`/clear` 是不可逆的——当前会话所有对话记忆都会丢失。只在确实需要全新开始时使用
-- 💡 **理解技巧**：上下文污染就像"电话游戏"——每一轮修正都加入新的噪声。回退（`Esc × 2`）比打补丁更干净
-- 🔄 **知识关联**：子代理的上下文隔离是解决上下文膨胀的根本方案，详见 [03-advanced-patterns.md](./03-advanced-patterns.md)
+> 💡 **理解技巧**：上下文污染就像"电话游戏"——每一轮修正都加入新的噪声。回退（`Esc × 2`）比打补丁更干净
+
+- **命令/配置示例**
+  ```bash
+  /compact                         # 压缩上下文
+  /compact "focus on payment module"  # 聚焦压缩
+  /clear                           # 清空（会丢失当前会话所有上下文！）
+  ```
+
+
+> 🔄 **知识关联**：子代理的上下文隔离是解决上下文膨胀的根本方案，详见 [03-advanced-patterns.md](./03-advanced-patterns.md)
 
 ---
 
