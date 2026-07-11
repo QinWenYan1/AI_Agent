@@ -136,31 +136,32 @@
 ## ✅ 知识点4: Sub-agents 子代理
 
 **多 agent 操作...**
-- Sub-agent 是 Claude Code 的**上下文隔离机制**——把一个子任务派发给独立的 Claude 实例，它有自己干净的上下文窗口，完成后只把**结论**（而非完整过程）传回主会话
+- Sub-agent 是 Claude Code 的**上下文隔离机制**——把一个子任务派发给独立的 Claude 实例，**它有自己干净的上下文窗口**，完成后只把**结论**（而非完整过程）传回主会话
 - 定义在 `.claude/agents/*.md`，通过 YAML 前端元数据配置模型、工具权限、系统提示
 - 子代理最多可嵌套多层级
-- 典型用法：代码审查交给 `code-reviewer` 子代理，验证交给 `verify-app` 子代理
+- **典型用法：代码审查交给 `code-reviewer` 子代理，验证交给 `verify-app` 子代理**
 
-**命令/配置示例**
-```markdown
-<!-- .claude/agents/code-reviewer.md -->
----
-name: code-reviewer
-description: 审查代码变更，查找 bug 和简化机会
-tools: Read, Bash, WebSearch
-model: opus
----
+> 💡 **理解技巧**：子代理的使用时机 = "这个子任务如果放在主会话里，会塞爆上下文"。原则：独立子问题 → 独立子代理
 
-你是一个 Code Reviewer。仔细检查 diff，报告：
-1. 潜在的 bug
-2. 可简化的逻辑
-3. 性能问题
-```
+> ⚠️ **关键警告**：子代理只返回**结论**。如果 prompt 不够精确，结论可能缺少关键细节。把子代理的输出格式要求写清楚
 
-**注意点**
-- 💡 **理解技巧**：子代理的使用时机 = "这个子任务如果放在主会话里，会塞爆上下文"。原则：独立子问题 → 独立子代理
-- ⚠️ **关键警告**：子代理只返回**结论**。如果 prompt 不够精确，结论可能缺少关键细节。把子代理的输出格式要求写清楚
-- 🔄 **知识关联**：Sub-agents、Skills [知识点5](#id5)、Commands [知识点6](#id6) 构成三级复用体系——粒度从细到粗
+- **命令/配置示例**
+  ```markdown
+  <!-- .claude/agents/code-reviewer.md -->
+  ---
+  name: code-reviewer
+  description: 审查代码变更，查找 bug 和简化机会
+  tools: Read, Bash, WebSearch
+  model: opus
+  ---
+
+  你是一个 Code Reviewer。仔细检查 diff，报告：
+  1. 潜在的 bug
+  2. 可简化的逻辑
+  3. 性能问题
+  ```
+
+> 🔄 **知识关联**：Sub-agents、Skills [知识点5](#id5)、Commands [知识点6](#id6) 构成三级复用体系——粒度从细到粗
 
 ---
 
