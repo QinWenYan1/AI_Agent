@@ -353,8 +353,7 @@
 - **关键特征**：
   - 模型是 Anthropic 训练的，你管不了。
   - Harness 是模型之外的一切——文件系统、工具链、沙箱、验证闭环、Hooks、压缩机制、记忆系统。你的 `CLAUDE.md`、settings.json、Skills、MCP 配置，加在一起就是你的 Harness
-  
-> 🔄 **知识关联**：Claude Code 是 Harness Engineering 阶段的产物"——甚至可以说，Claude Code 就是 Harness Engineering 这个概念的最佳实例
+
 
 - **Loop Engineering 的核心**：人类不再直接与 Agent 对话——人类设计一个**循环**，由循环自动 prompt Claude
 - **关键特征**：
