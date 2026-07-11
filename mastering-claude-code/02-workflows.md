@@ -68,6 +68,11 @@
 - **文件引用**
   - `project-root/a/foo.py` → 输入 `@a/foo.py` 引用该文件
 
+- **建议**
+  - 越多的上下文注入，Claude 会越聪明
+  - 花时间，耐心调整上下文
+
+
 > ⚠️ **关键区分**：`CLAUDE.md` ≠ Prompt。它是**持久化的项目知识**，而 Prompt 是一次性的任务描述
 
 ---
@@ -75,54 +80,48 @@
 <a id="id2"></a>
 ## ✅ 知识点2: `CLAUDE.md` 编写与维护 
 
-**理论**
+**维护`CLAUDE.md`也是维护上下文的一部分...**
 - **保持精简**：目标 ≤ 200 行/文件，个人偏好约 60 行。臃肿的 `CLAUDE.md` 会导致模型 drift（行为漂移），开始忽略指令
-- **持续修剪**：如果发现 Claude 开始不听话，直接删掉 `CLAUDE.md` 从头重建——有时删掉重写比修复更快
+  - **持续修剪**：如果发现 Claude 开始不听话，直接删掉 `CLAUDE.md` 从头重建——有时删掉重写比修复更快
 - **团队维护工作流**：每次 Claude 做错事 → 加一条规则到 `CLAUDE.md`。PR Review 时 `@claude` 让它自动把学到的东西更新进 `CLAUDE.md`
+- **核心维护原则**：**每次看到 Claude 做错了，就把规则加进 `CLAUDE.md`，这样下次它就不会再犯**。这是复利工程（Compounding Engineering）的实践
 - **必须包含**：常用 Bash 命令、常用 MCP 工具、架构决策、重要文件、编码原则、禁止模式、命名规范、构建/测试/运行命令
-- 使用 `/init` 自动生成初始骨架，之后持续迭代
-- 可以选择通过 prompt improver 来优化 `CLAUDE.md` 的内容
+  - 使用 `/init` 自动生成初始骨架，之后持续迭代
+  - 可以选择通过 prompt improver 来优化 `CLAUDE.md` 的内容
 
-**注意点**
-- 💡 **理解技巧**：核心维护原则——*每次看到 Claude 做错了，就把规则加进 CLAUDE.md，这样下次它就不会再犯*。这是复利工程（Compounding Engineering）的实践
-- 🔄 **知识关联**：在会话中使用 `#`（hash）可以快速捕获当前交互的记忆，自动追加到 `CLAUDE.md`——这是 [03-advanced-patterns.md](./03-advanced-patterns.md) 中的核心快捷键之一
-- ⚠️ **反模式**：不要试图在 `CLAUDE.md` 里写"万能 Prompt"。越聚焦、越具体，Claude 越不会漂移
+> 🔄 **知识关联**：在会话中使用 `#`（hash）可以快速捕获当前交互的记忆，自动追加到 `CLAUDE.md`
+> ⚠️ **反模式**：不要试图在 `CLAUDE.md` 里写"万能 Prompt"。越聚焦、越具体，Claude 越不会漂移
 
 ---
 
 <a id="id3"></a>
 ## ✅ 知识点3: 配置层级体系 
 
-**理论**
+**CC的层级管理...**
 - Claude Code 的配置支持**层级化管理**，从项目到全局到企业策略，形成嵌套的优先级体系：
 
-| 层级 | 范围 | 是否提交 Git | 典型内容 |
-|------|------|-------------|----------|
-| **项目级 (Project)** | 单个 Git 仓库 | ✅ 可提交 | CLAUDE.md, Slash Commands, MCP JSON |
-| **全局级 (Global)** | 用户所有项目 | ❌ 个人 | 个人偏好、快捷方式 |
-| **企业级 (Enterprise)** | 全公司统一 | 管理员下发 | 安全策略、自动审批规则 |
+  | 层级 | 范围 | 是否提交 Git | 典型内容 |
+  |------|------|-------------|----------|
+  | **项目级 (Project)** | 单个 Git 仓库 | ✅ 可提交 | CLAUDE.md, Slash Commands, MCP JSON |
+  | **全局级 (Global)** | 用户所有项目 | ❌ 个人 | 个人偏好、快捷方式 |
+  | **企业级 (Enterprise)** | 全公司统一 | 管理员下发 | 安全策略、自动审批规则 |
 
 - 这个层级体系**适用于几乎所有配置类型**：Slash Commands、权限策略、MCP 服务器、`CLAUDE.md`
 - **权限自动审批**：如果全公司都在用某个测试命令，可以在企业策略中预授权，所有员工的 Claude Code 都会自动批准该命令
 - **命令屏蔽**：如果有不应被抓取的 URL，加一条企业策略规则，员工无法覆盖，该 URL 永远不会被访问
 
-**命令/配置示例**
-```json
-// 项目级 .mcp.json（提交到 Git，团队成员共享）
-{
-  "mcpServers": {
-    "puppeteer": {
-      "type": "http",
-      "url": "https://puppeteer.mcp.anthropic.com/mcp"
+- **命令/配置示例**
+  ```json
+  // 项目级 .mcp.json（提交到 Git，团队成员共享）
+  {
+    "mcpServers": {
+      "puppeteer": {
+        "type": "http",
+        "url": "https://puppeteer.mcp.anthropic.com/mcp"
+      }
     }
   }
-}
-```
-
-**注意点**
-- 💡 **理解技巧**：企业策略的核心价值是**双向的**——既能帮员工消除重复的审批弹窗（提高效率），也能屏蔽危险操作（保障安全）
-- 🔄 **知识关联**：配置层级与 Slash Commands、MCP 服务器的关系——统一在 [知识点4](#id4) 的"配置一次团队共享"原则中展开
-- 📋 **术语提醒**：`Hierarchy(层级)` — 低层级的配置会被高层级覆盖，企业策略优先级最高
+  ```
 
 ---
 
