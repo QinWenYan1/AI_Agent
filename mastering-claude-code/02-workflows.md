@@ -189,6 +189,11 @@
   | `Notification` | 通知事件 | 自定义通知渠道 |
   | `PermissionRequest` | 权限请求时 | 自动审批策略 |
 
+- **`settings.json` 结构**：
+  - 当前项目 `.claude/settings.json`：验证工具——提交到 Git，团队共享
+  - 当前项目/个人 `.claude/settings.local.json`：本地调试脚本，不提交
+  - 全局/所有项目 `~/.claude/settings.json`：通用规则（如格式化为 true）
+
 - **命令/配置示例**
   ```json
   // .claude/settings.json 中的 Hooks 配置结构
