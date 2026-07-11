@@ -149,23 +149,21 @@
 <a id="id5"></a>
 ## ✅ 知识点5: 内置工具矩阵
 
-**理论**
+**CC有什么内置工具呢？**
 - Claude Code 自带一组内置工具（Tools），让 Claude 可以直接与环境交互。理解这些工具的能力边界是高效使用 Claude Code 的前提
+  | 工具 | 能力 | 典型用途 |
+  |------|------|----------|
+  | **Bash** | 执行任意 Shell 命令 | `npm test`, `git log`, `python train.py` |
+  | **Read** | 读取文件内容 | 查看源码、配置文件、日志 |
+  | **Write** | 创建/覆写文件 | 生成新文件 |
+  | **Edit** | 精确字符串替换 | 修改现有文件（不改动无关代码） |
+  | **WebFetch** | 抓取网页内容 | 查阅在线文档、API 参考 |
+  | **WebSearch** | Web 搜索 | 查找最新信息、解决方案 |
+  | **TODO** | 任务列表追踪 | 管理复杂多步骤任务 |
+  | **Task** | 子代理调度 | 派生子代理处理子任务 |
 
-| 工具 | 能力 | 典型用途 |
-|------|------|----------|
-| **Bash** | 执行任意 Shell 命令 | `npm test`, `git log`, `python train.py` |
-| **Read** | 读取文件内容 | 查看源码、配置文件、日志 |
-| **Write** | 创建/覆写文件 | 生成新文件 |
-| **Edit** | 精确字符串替换 | 修改现有文件（不改动无关代码） |
-| **WebFetch** | 抓取网页内容 | 查阅在线文档、API 参考 |
-| **WebSearch** | Web 搜索 | 查找最新信息、解决方案 |
-| **TODO** | 任务列表追踪 | 管理复杂多步骤任务 |
-| **Task** | 子代理调度 | 派生子代理处理子任务 |
+> ⚠️ **关键区分**：`Edit` 优于 `Write`——`Edit` 做精确字符串替换，不会意外覆盖文件中不相关的部分
 
-**注意点**
-- ⚠️ **关键区分**：`Edit` 优于 `Write`——`Edit` 做精确字符串替换，不会意外覆盖文件中不相关的部分
-- 💡 **理解技巧**：Claude 会**自己编排工具的使用顺序**——你不需要逐工具指导，只需说"做这件事"，它会自动决定先用哪个工具、后用哪个工具
 
 
 ---
@@ -173,56 +171,55 @@
 <a id="id6"></a>
 ## ✅ 知识点6: Hooks 事件体系
 
-**理论**
+**Hooks是什么？**
 - Hooks 是在 Claude Code **生命周期特定节点**自动触发的处理程序。与 AI 推理不同，Hooks 是**确定性的、可预测的**
+- **Hooks vs Skills**：Hooks 是"事件驱动"（发生 X 自动做 Y），Skills 是"指令驱动"（人调用 /skill-name）。Hooks 无需人工触发
 - 配置在 `.claude/settings.json` 中，12+ 种事件类型：
 
-| Hook 事件 | 触发时机 | 典型用途 |
-|-----------|----------|----------|
-| `PreToolUse` | 工具调用**前** | 权限路由、使用统计 |
-| `PostToolUse` | 工具调用**后** | 自动格式化、lint 修复 |
-| `UserPromptSubmit` | 用户提交 prompt 时 | 注入额外上下文 |
-| `SessionStart` | 会话启动 | 环境检查、通知 |
-| `SessionEnd` | 会话结束 | 清理、通知 |
-| `Stop` | Claude 响应结束时 | 质量检查、催促继续 |
-| `SubagentStop` | 子代理结束时 | 校验子代理产出 |
-| `PreCompact` | 上下文压缩前 | 保存关键信息 |
-| `Notification` | 通知事件 | 自定义通知渠道 |
-| `PermissionRequest` | 权限请求时 | 自动审批策略 |
+  | Hook 事件 | 触发时机 | 典型用途 |
+  |-----------|----------|----------|
+  | `PreToolUse` | 工具调用**前** | 权限路由、使用统计 |
+  | `PostToolUse` | 工具调用**后** | 自动格式化、lint 修复 |
+  | `UserPromptSubmit` | 用户提交 prompt 时 | 注入额外上下文 |
+  | `SessionStart` | 会话启动 | 环境检查、通知 |
+  | `SessionEnd` | 会话结束 | 清理、通知 |
+  | `Stop` | Claude 响应结束时 | 质量检查、催促继续 |
+  | `SubagentStop` | 子代理结束时 | 校验子代理产出 |
+  | `PreCompact` | 上下文压缩前 | 保存关键信息 |
+  | `Notification` | 通知事件 | 自定义通知渠道 |
+  | `PermissionRequest` | 权限请求时 | 自动审批策略 |
 
-**命令/配置示例**
-```json
-// .claude/settings.json 中的 Hooks 配置结构
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          { "type": "command", "command": "bun run format || true" }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          { "type": "prompt", "prompt": "检查你的产出是否通过了所有测试" }
-        ]
-      }
-    ]
+- **命令/配置示例**
+  ```json
+  // .claude/settings.json 中的 Hooks 配置结构
+  {
+    "hooks": {
+      "PostToolUse": [
+        {
+          "matcher": "Write|Edit",
+          "hooks": [
+            { "type": "command", "command": "bun run format || true" }
+          ]
+        }
+      ],
+      "Stop": [
+        {
+          "hooks": [
+            { "type": "prompt", "prompt": "检查你的产出是否通过了所有测试" }
+          ]
+        }
+      ]
+    }
   }
-}
-```
+  ```
 
-**注意点**
-- 💡 **理解技巧**：Hooks vs Skills——Hooks 是"事件驱动"（发生 X 自动做 Y），Skills 是"指令驱动"（人调用 /skill-name）。Hooks 无需人工触发
-- 🔄 **知识关联**：Hooks 和 Sub-agents、Skills、Commands 共同构成 Claude Code 的"编排层"，详见 [03-advanced-patterns.md](./03-advanced-patterns.md)
-- 📋 **术语提醒**：`matcher(匹配器)` — 正则表达式，决定哪些工具调用会触发 Hook；`deterministic(确定性的)` — 给定相同输入必然产生相同输出
+> 🔄 **知识关联**：Hooks 和 Sub-agents、Skills、Commands 共同构成 Claude Code 的"编排层"
+> 📋 **术语提醒**：`matcher(匹配器)` — 正则表达式，决定哪些工具调用会触发 Hook
 
 ---
 
 <a id="id7"></a>
-## ✅ 知识点7: PostToolUse Hook（扩充） (PostToolUse Hook)
+## ✅ 知识点7: PostToolUse Hook
 
 **理论**
 - `PostToolUse` 在 Claude 每次 Write/Edit 文件后自动运行格式化工具
@@ -251,7 +248,7 @@
 ---
 
 <a id="id8"></a>
-## ✅ 知识点8: Stop Hook 与质量守护（扩充） (Stop Hook)
+## ✅ 知识点8: Stop Hook 与质量守护
 
 **理论**
 - `Stop` Hook 在 Claude 完成一个推理回合后触发。它可以注入额外的检查指令
@@ -281,8 +278,7 @@
 ---
 
 <a id="id9"></a>
-## ✅ 知识点9: 验证循环进阶（扩充） (Verification Loops — Advanced)
-
+## ✅ 知识点9: 验证循环进阶
 **理论**
 - 验证循环的核心理念：**给 Claude 一个验证自己产出的方式——有了这个反馈循环，最终质量会提升 2-3 倍**
 - 核心机制：让 Claude 自动运行验证命令（测试、lint、构建），看到失败输出后自己修复，循环直到通过。人类只需定义"什么算通过"
@@ -310,7 +306,7 @@
 ---
 
 <a id="id10"></a>
-## ✅ 知识点10: 上下文管理进阶（扩充） (Advanced Context Management)
+## ✅ 知识点10: 上下文管理进阶
 
 **理论**
 - 上下文管理是 Claude Code 使用中**最容易被忽视但影响最大**的技能
