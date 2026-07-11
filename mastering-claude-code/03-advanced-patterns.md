@@ -1,6 +1,6 @@
 # 📘 03. 高级篇：规模化与扩展 (Advanced Patterns: Scaling & Extension)
 
-> 来源说明："Mastering Claude Code in 30 Minutes" 演讲 + 社区最佳实践 | 本篇涵盖：核心快捷键、SDK/CLI 脚本化、并行会话与 Git Worktree、Sub-agents/Skills/Commands 三级复用体系、MCP 集成、工程哲学
+> 来源说明："Mastering Claude Code in 30 Minutes" 演讲 + 社区最佳实践 | 本篇涵盖：核心快捷键、SDK/CLI 脚本化、并行会话与 Git Worktree、Sub-agents/Skills/Commands 三级复用体系、Prompt/Context/Command/Skill 四者辨析、MCP 集成、工程哲学
 
 ---
 
@@ -12,8 +12,9 @@
 - [*知识点4: Sub-agents 子代理*](#id4)
 - [*知识点5: Skills 技能包*](#id5)
 - [*知识点6: Slash Commands 自定义命令*](#id6)
-- [*知识点7: MCP 外部工具集成*](#id7)
-- [*知识点8: 工程哲学与范式演进*](#id8)
+- [*知识点7: Prompt · Context · Command · Skill 四者辨析*](#id7)
+- [*知识点8: MCP 外部工具集成*](#id8)
+- [*知识点9: 工程哲学与范式演进*](#id9)
 
 ---
 
@@ -171,8 +172,9 @@
 **一个工作流用了多次，如何处理?**
 - Skills 是**可复用的打包工作流**，存储在 `.claude/skills/<name>/SKILL.md`
 - 与 Sub-agents 的区别：Skills 的指令直接注入当前上下文（不新建实例），适合**过程性知识**
-- 支持渐进式披露（Progressive Disclosure）：SKILL.md 主体 → `references/` 详细文档 → `scripts/` 辅助脚本，只在被调用时才加载
-- 核心原则：**"如果你一天内做某件事超过一次，就把它变成 Skill 或 Command"**
+- 支持渐进式披露（Progressive Disclosure）：SKILL.md 主体 → `references/` 详细文档 → `scripts/` 辅助脚本，只在被调用时才加载（懒加载）
+> 📋 **术语提醒**：`Progressive Disclosure(渐进式披露)` — 先加载概要，需要时再加载详细内容，节省上下文 token
+- **核心原则**：**"如果你一天内做某件事超过一次，就把它变成 Skill 或 Command"**
 
 - **命令/配置示例**
   ```markdown
@@ -194,115 +196,152 @@
 
 > 🔄 **知识关联**：Skills 的三层结构（主指令 → 详细参考 → 脚本）是"渐进式披露"设计模式的实践
 
-> 📋 **术语提醒**：`Progressive Disclosure(渐进式披露)` — 先加载概要，需要时再加载详细内容，节省上下文 token
 
 ---
 
 <a id="id6"></a>
 ## ✅ 知识点6: Slash Commands 自定义命令
 
-**我们还可以自定义常用的命令..**
+**我们还可以自定义常用的命令...**
 - Slash Commands 是**最轻量级的复用单元**——一个 `.md` 文件放在 `.claude/commands/` 下，就变成了 `/command-name`
 - 文件内容就是 prompt 模板，支持 `$ARGUMENTS` 占位符接收参数
 - 适合重复性操作：`/commit-push-pr`、`/techdebt`、`/bump-version`
 - 可以提交到 Git 作为团队共享命令（如 Anthropic 内部用 Slash Command + GitHub Action 自动为 Issue 打标签）
 
-**命令/配置示例**
-```markdown
-<!-- .claude/commands/release.md -->
-按照以下步骤发布新版本：
-1. 运行 npm test && npm run build
-2. 从 CHANGELOG.md 生成 release notes
-3. npm version $ARGUMENTS
-4. git push origin --tags
-5. 创建 GitHub Release
+- **命令/配置示例**
+  ```markdown
+  <!-- .claude/commands/release.md -->
+  按照以下步骤发布新版本：
+  1. 运行 npm test && npm run build
+  2. 从 CHANGELOG.md 生成 release notes
+  3. npm version $ARGUMENTS
+  4. git push origin --tags
+  5. 创建 GitHub Release
 
-版本号：$ARGUMENTS
-```
+  版本号：$ARGUMENTS
+  ```
+  在会话中使用：`/release patch` → `$ARGUMENTS` = `patch`
 
-在会话中使用：`/release patch` → `$ARGUMENTS` = `patch`
+- 三级复用体系的选型决策：
 
-**注意点**
-- 💡 **理解技巧**：三级复用体系的选型决策——
+  | 场景 | 用哪个 |
+  |------|--------|
+  | 独立子任务，需要干净上下文 | Sub-agent |
+  | 过程性工作流，可复用步骤 | Skill |
+  | 简单 prompt 快捷方式 | Slash Command |
 
-| 场景 | 用哪个 |
-|------|--------|
-| 独立子任务，需要干净上下文 | Sub-agent |
-| 过程性工作流，可复用步骤 | Skill |
-| 简单 prompt 快捷方式 | Slash Command |
-
-- 🔄 **知识关联**：Commands 是最简单的复用方式——一行 Markdown = 一个命令，不需要学习 YAML 配置
+> 🔄 **知识关联**：Commands 是最简单的复用方式——一行 Markdown = 一个命令，不需要学习 YAML 配置
 
 ---
 
 <a id="id7"></a>
-## ✅ 知识点7: MCP 外部工具集成
+## ✅ 知识点7: Prompt · Context · Command · Skill 四者辨析
 
-**理论**
-- MCP（`Model Context Protocol`）允许 Claude Code 连接外部服务和数据源
-- 配置在 `.mcp.json` 或 `.claude/settings.json` 的 `mcpServers` 字段
-- Claude Code 启动时加载 MCP Server 的工具列表。但 MCP 的全量工具描述可能消耗 50K+ token——**新版 Tool Search 功能通过按需发现减少了 85% 的 token 消耗**
-- 常用 MCP 集成：
+**四个概念时常被混用或搞混……**
 
-| MCP Server | 能力 | 典型场景 |
-|------------|------|----------|
-| **Slack** | 读写消息 | 把 Slack 线程喂给 Claude → "fix this bug" |
-| **GitHub** | Issues/PRs/Repo | 自动 triage Issues |
-| **Sentry** | 错误追踪 | 读 Sentry 错误 → Claude 分析 → 修复 |
-| **BigQuery** | 数据分析 | SQL 查询（有工程师 6 个月没手写 SQL 了） |
-| **Puppeteer** | 浏览器操控 | 截图验证 UI |
+- 在 Claude Code 的日常使用中，Prompt、Context、Slash Command、Skill 这四个概念经常让初学者迷惑。
 
-**命令/配置示例**
-```json
-// .mcp.json
-{
-  "mcpServers": {
-    "slack": {
-      "type": "http",
-      "url": "https://slack.mcp.anthropic.com/mcp"
-    },
-    "github": {
-      "type": "http",
-      "url": "https://github.mcp.anthropic.com/mcp"
-    }
-  }
-}
-```
+- **一张表厘清四者关系：**
 
-**注意点**
-- ⚠️ **Token 消耗陷阱**：MCP Server 的工具描述会占用上下文 token——不要同时挂载太多不用的 MCP Server。开启 Tool Search 减少浪费
-- 💡 **理解技巧**：MCP 让 Claude Code 从一个"代码工具"升级为"全栈运维平台"——代码 + 数据 + 协作 + 监控，全在一个终端窗口里
-- 📋 **术语提醒**：`MCP(Model Context Protocol)` — Anthropic 开源的标准协议，让 LLM 与外部工具/数据源安全通信
+  | 维度 | Prompt | Context | Slash Command | Skill |
+  |------|:--:|:--:|:--:|:--:|
+  | 本质 | 一次性任务描述 | Claude "看到"的全部信息 | 可复用的 prompt 模板 | 可复用的打包工作流 |
+  | 持久化 | ❌ 随会话消失 | ✅ 文件持久化 | ✅ `.md` 文件 | ✅ `SKILL.md` + 子目录 |
+  | 调用方式 | 直接在输入框打字 | 自动加载 / `@` 手动引用 | 手动 `/命令名` | 手动 `/skill名` |
+  | 存储位置 | — | `CLAUDE.md` 等 | `.claude/commands/` | `.claude/skills/<name>/` |
+  | 支持参数 | — | — | ✅ `$ARGUMENTS` | ✅ |
+  | 渐进披露 | — | ✅ 懒加载 | ❌ | ✅ `references/` + `scripts/` |
+  | 提交到 Git | — | ✅ | ✅ | ✅ |
+
+- **用一句话区分：**
+  - **Prompt** = 你当下对 Claude 说的话，说完即弃。是"问题本身"
+  - **Context** = Claude 的"记忆"，由 `CLAUDE.md` + 对话历史 + 引用文件 + 工具输出共同构成，决定了它能做出多聪明的回答。是"知识底座"
+  - **Slash Command** = 给常用的 prompt 起个名字存成 `.md` 文件，下次 `/名字` 就能复用——最轻量的复用单元。是"快捷方式"
+  - **Skill** = Command 的增强版，除了 prompt 还能带 `references/` 参考文档和 `scripts/` 辅助脚本，支持"用到才加载"的渐进披露。是"打包工作流"
+
+- **选型决策口诀：**
+  ```
+  这个操作会重复做吗？
+    ├─ 不会 → 直接写 Prompt
+    └─ 会 →
+        ├─ 就是一句 prompt 模板 → Slash Command
+        ├─ 需要多步骤 + 参考文档 → Skill
+        └─ 需要独立干净的上下文 → Sub-agent
+  ```
+
+> 💡 **理解技巧**：Prompt 和 Context 是"输入层"的概念（Claude 看到了什么），Command 和 Skill 是"复用层"的概念（你怎么组织重复操作）。两两一组，不要跨组混淆
+
+> 🔄 **知识关联**：Context 的组成和懒加载机制见 [02-workflows.md 知识点1](./02-workflows.md#id1)；Sub-agents 见本页 [知识点4](#id4)；Skills 见 [知识点5](#id5)；Commands 见 [知识点6](#id6)
 
 ---
 
 <a id="id8"></a>
-## ✅ 知识点8: 工程哲学与范式演进
+## ✅ 知识点8: MCP 外部工具集成
+
+**那么CC如何使用外部工具的?**
+- MCP（`Model Context Protocol`）允许 Claude Code 连接外部服务和数据源
+- 配置在 `.mcp.json` 或 `.claude/settings.json` 的 `mcpServers` 字段
+- Claude Code 启动时加载 MCP Server 的工具列表。但 MCP 的全量工具描述可能消耗 50K+ token——**新版 Tool Search 功能通过按需发现减少了 85% 的 token 消耗**
+
+> ⚠️ **Token 消耗陷阱**：MCP Server 的工具描述会占用上下文 token——不要同时挂载太多不用的 MCP Server。开启 Tool Search 减少浪费
+- 常用 MCP 集成：
+  | MCP Server | 能力 | 典型场景 |
+  |------------|------|----------|
+  | **Slack** | 读写消息 | 把 Slack 线程喂给 Claude → "fix this bug" |
+  | **GitHub** | Issues/PRs/Repo | 自动 triage Issues |
+  | **Sentry** | 错误追踪 | 读 Sentry 错误 → Claude 分析 → 修复 |
+  | **BigQuery** | 数据分析 | SQL 查询（有工程师 6 个月没手写 SQL 了） |
+  | **Puppeteer** | 浏览器操控 | 截图验证 UI |
+
+- **命令/配置示例**
+  ```json
+  // .mcp.json
+  {
+    "mcpServers": {
+      "slack": {
+        "type": "http",
+        "url": "https://slack.mcp.anthropic.com/mcp"
+      },
+      "github": {
+        "type": "http",
+        "url": "https://github.mcp.anthropic.com/mcp"
+      }
+    }
+  }
+  ```
+
+> 💡 **理解技巧**：MCP 让 Claude Code 从一个"代码工具"升级为"全栈运维平台"——代码 + 数据 + 协作 + 监控，全在一个终端窗口里
+
+
+---
+
+<a id="id9"></a>
+## ✅ 知识点9: 工程哲学与范式演进
 
 **工程范式的演变...**
 
-**一、复利工程 (Compounding Engineering)**
-> 每个小的优化会复利成巨大的生产力提升。Claude Code 本身的设计就是让每次 1% 的改进累积起来——更快的反馈、更准的自动化、更少的 friction。
+- **一、复利工程 (Compounding Engineering)**
+  > 每个小的优化会复利成巨大的生产力提升。Claude Code 本身的设计就是让每次 1% 的改进累积起来——更快的反馈、更准的自动化、更少的 friction。
 
-**二、不要和模型对赌 (Don't Bet Against the Model)**
-> 不要花大量时间写复杂的 prompt hack 来解决当前版本的某个缺陷——模型的下一次更新很可能直接消除这个缺陷。把精力花在可累积的优化上（`CLAUDE.md`、Hooks、Workflows）。
+- **二、不要和模型对赌 (Don't Bet Against the Model)**
+  > 不要花大量时间写复杂的 prompt hack 来解决当前版本的某个缺陷——模型的下一次更新很可能直接消除这个缺陷。把精力花在可累积的优化上（`CLAUDE.md`、Hooks、Workflows）。
 
-**三、Vanilla is Powerful（原版就很强）**
-> Claude Code 开箱即用的体验已经很好——定制应该是**有针对性的、克制的**，而非全面覆盖。不鼓励在第一天就配置一大堆自定义设置。
+- **三、Vanilla is Powerful（原版就很强）**
+  > Claude Code 开箱即用的体验已经很好——定制应该是**有针对性的、克制的**，而非全面覆盖。不鼓励在第一天就配置一大堆自定义设置。
 
-**四、原型 > 文档**
-> 与其写产品需求文档，不如让 Claude 快速生成 20-30 个原型版本，在迭代中找到正确答案。PR 中位数约 118 行——小步快跑。
+- **四、原型 > 文档**
+  > 与其写产品需求文档，不如让 Claude 快速生成 20-30 个原型版本，在迭代中找到正确答案。PR 中位数约 118 行——小步快跑。
 
-**五、只做一次的事不值得优化**
-> 只有重复的操作才值得写 Hook/Skill/Command。核心原则："如果你一天做某件事超过一次，就把它变成 Skill 或 Command。"
+- **五、只做一次的事不值得优化**
+  > 只有重复的操作才值得写 Hook/Skill/Command。核心原则："如果你一天做某件事超过一次，就把它变成 Skill 或 Command。"
 
-**六、范式进化：从 Prompt Engineering 到 Loop Engineering**
+- **六、范式进化：从 Prompt Engineering 到 Loop Engineering**
 
-```
-Prompt Engineering  →  Context Engineering  →  Loop Engineering
-   (2023-2024)           (2024-2025)            (2025-2026)
-   "怎样写好 prompt"     "怎样给 Claude 正确的上下文"   "怎样设计 Claude 的自循环"
-```
+  ```
+  Prompt Engineering  →  Context Engineering  →  Loop Engineering
+    (2023-2024)           (2024-2025)            (2025-2026)
+    "怎样写好 prompt"     "怎样给 Claude 正确的上下文"   "怎样设计 Claude 的自循环"
+  ```
 
 - **Loop Engineering 的核心**：人类不再直接与 Agent 对话——人类设计一个**循环**，由循环自动 prompt Claude
 - **关键特征**：
@@ -310,11 +349,9 @@ Prompt Engineering  →  Context Engineering  →  Loop Engineering
   - 人类角色从"操作者"变成"设计者"——设计循环的规则、验证标准、终止条件
   - 核心理念：*"不再和 agent 对话——写一个循环替我 prompt Claude"*
 
-**注意点**
-- 💡 **理解技巧**：这些工程原则背后都有具体的工具和工流做支撑，不是空泛的"道德准则"
-- 🔄 **知识关联**："原型 > 文档"对应 [01-foundation.md](./01-foundation.md) 中 Plan Mode 的快速迭代思路
-- 🔄 **知识关联**：Loop Engineering 依赖本文所有前置知识——Worktrees（并行执行）、Sub-agents（任务分配）、Hooks（事件驱动）、SDK（脚本化）、MCP（外部感知）
-- 📋 **术语提醒**：`Remote Control(远程控制)` — Claude Code 的移动端功能，可以在手机上查看会话状态、批准关键操作
+
+> 💡 **理解技巧**：这些工程原则背后都有具体的工具和工流做支撑，不是空泛的"道德准则"
+> 🔄 **知识关联**：Loop Engineering 依赖本文所有前置知识——Worktrees（并行执行）、Sub-agents（任务分配）、Hooks（事件驱动）、SDK（脚本化）、MCP（外部感知）
 
 ---
 
@@ -323,8 +360,9 @@ Prompt Engineering  →  Context Engineering  →  Loop Engineering
 1. **五个快捷键覆盖大部分日常操作**——`@`、`!`、`Shift+Tab`、`Esc`、`Ctrl+R`
 2. **`claude -p` 把 Claude 变成 Unix 管道中的一个超级工具**——pipe 进去、pipe 出来，刚刚开始探索这种组合的潜力
 3. **并行会话是效率质变的门槛**——用 Git Worktree 隔离，3-5 个本地 + 5-10 个云端，上下文互不污染
-4. **三级复用体系**：Sub-agents（独立上下文）> Skills（打包工作流）> Commands（快捷方式）
-5. **MCP 让 Claude Code 从代码工具升级为全栈平台**——代码 + 数据 + 协作 + 监控一站式
-6. **从 Prompt Engineering 到 Loop Engineering**——从"操作 AI"到"设计 AI 的自主循环"
+4. **四级复用体系**：Prompt（一次性）→ Slash Command（快捷方式）→ Skill（打包工作流）→ Sub-agent（独立上下文）
+5. **Prompt 和 Context 是输入层，Command 和 Skill 是复用层**——两两一组，不要跨组混淆
+6. **MCP 让 Claude Code 从代码工具升级为全栈平台**——代码 + 数据 + 协作 + 监控一站式
+7. **从 Prompt Engineering 到 Loop Engineering**——从"操作 AI"到"设计 AI 的自主循环"
 
 ---
