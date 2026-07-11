@@ -338,10 +338,15 @@
 - **六、范式进化：从 Prompt Engineering 到 Loop Engineering**
 
   ```
-  Prompt Engineering  →  Context Engineering  →  Loop Engineering
-    (2023-2024)           (2024-2025)            (2025-2026)
-    "怎样写好 prompt"     "怎样给 Claude 正确的上下文"   "怎样设计 Claude 的自循环"
+  Prompt：怎么问 AI
+  ↓
+  Context：给 AI 什么信息
+  ↓
+  Harness：如何组织 AI 的能力
+  ↓
+  Loop：如何让 AI 持续创造结果
   ```
+  ![alt text](images/3.png)
 
 - **Loop Engineering 的核心**：人类不再直接与 Agent 对话——人类设计一个**循环**，由循环自动 prompt Claude
 - **关键特征**：
