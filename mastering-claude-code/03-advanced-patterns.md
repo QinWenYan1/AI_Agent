@@ -191,7 +191,9 @@
   ```
 
 > 💡 **理解技巧**：Skill vs Command——两者本质相同（都是 Markdown 文件），但 Skill 可以有子目录（`references/`、`scripts/`）支持渐进式加载，Command 更轻量
+
 > 🔄 **知识关联**：Skills 的三层结构（主指令 → 详细参考 → 脚本）是"渐进式披露"设计模式的实践
+
 > 📋 **术语提醒**：`Progressive Disclosure(渐进式披露)` — 先加载概要，需要时再加载详细内容，节省上下文 token
 
 ---
@@ -199,7 +201,7 @@
 <a id="id6"></a>
 ## ✅ 知识点6: Slash Commands 自定义命令
 
-**理论**
+**我们还可以自定义常用的命令...**
 - Slash Commands 是**最轻量级的复用单元**——一个 `.md` 文件放在 `.claude/commands/` 下，就变成了 `/command-name`
 - 文件内容就是 prompt 模板，支持 `$ARGUMENTS` 占位符接收参数
 - 适合重复性操作：`/commit-push-pr`、`/techdebt`、`/bump-version`
