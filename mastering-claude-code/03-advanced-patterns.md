@@ -93,7 +93,7 @@
 <a id="id3"></a>
 ## ✅ 知识点3: 并行会话与 Git Worktree 
 
-**理论**
+**多Claude会话**
 - 高级用户常见的模式：**同时运行多个 Claude Code 会话**，每个专注一个独立任务（架构设计、功能开发、测试、文档……），互不干扰
 - 运行方式：
   - 终端 Tab 1-5 各跑一个本地会话
@@ -101,39 +101,41 @@
   - 云端 Web UI（`claude.ai/code`）同时跑 5-10 个会话
   - 开启系统通知，哪个完成了就切过去
 - 使用 `git worktree` 实现分支级别的文件隔离——每个 worktree 是一个独立的 Git 工作副本，指向不同分支
+> ⚠️ **前提条件**：每个 worktree 需要干净的工作区（无未提交变更）。如果需要切换分支但当前有未提交工作，先 `git stash`
+
+> 📋 **术语提醒**：`Worktree(工作树)` — Git 2.5+ 支持的功能，允许同一仓库同时 checkout 多个分支到不同目录
 - 并行会话的核心价值不是"同时写代码"（人类注意力是单线程的），而是**上下文隔离**——每个会话有独立、干净的对话历史，不会相互污染
 
-**命令/配置示例**
-```bash
-# 创建一个新的 worktree（在独立分支上工作）
-git worktree add .claude/worktrees/feature-auth feature-auth
+- **命令/配置示例**
+  ```bash
+  # 创建一个新的 worktree（在独立分支上工作）
+  git worktree add .claude/worktrees/feature-auth feature-auth
 
-# 查看所有 worktree
-git worktree list
+  # 查看所有 worktree
+  git worktree list
 
-# 删除 worktree（工作完成后）
-git worktree remove .claude/worktrees/feature-auth
+  # 删除 worktree（工作完成后）
+  git worktree remove .claude/worktrees/feature-auth
 
-# 终端多 Tab 布局示例：
-# Tab 1: claude → 架构设计
-# Tab 2: claude → 功能实现
-# Tab 3: claude → 测试编写
-# Tab 4: claude → Code Review
-# Tab 5: claude → 文档更新
-```
+  # 终端多 Tab 布局示例：
+  # Tab 1: claude → 架构设计
+  # Tab 2: claude → 功能实现
+  # Tab 3: claude → 测试编写
+  # Tab 4: claude → Code Review
+  # Tab 5: claude → 文档更新
+  ```
 
-**注意点**
-- ⚠️ **前提条件**：每个 worktree 需要干净的工作区（无未提交变更）。如果需要切换分支但当前有未提交工作，先 `git stash`
-- 💡 **理解技巧**：从"跑一个 Claude"到"跑 N 个并行 Claude"，是效率从量变到质变的门槛——可以同时推进多个任务而不需要频繁切换上下文
-- 🔄 **知识关联**：Worktree 隔离 + Sub-agents [知识点4](#id4) 构成两级隔离——进程级（worktree）和上下文级（sub-agent）
-- 📋 **术语提醒**：`Worktree(工作树)` — Git 2.5+ 支持的功能，允许同一仓库同时 checkout 多个分支到不同目录
+> 💡 **理解技巧**：从"跑一个 Claude"到"跑 N 个并行 Claude"，是效率从量变到质变的门槛——可以同时推进多个任务而不需要频繁切换上下文
+
+> 🔄 **知识关联**：Worktree 隔离 + Sub-agents [知识点4](#id4) 构成两级隔离——进程级（worktree）和上下文级（sub-agent）
+
 
 ---
 
 <a id="id4"></a>
 ## ✅ 知识点4: Sub-agents 子代理
 
-**多 Claude 操作...**
+**多 agent 操作...**
 - Sub-agent 是 Claude Code 的**上下文隔离机制**——把一个子任务派发给独立的 Claude 实例，它有自己干净的上下文窗口，完成后只把**结论**（而非完整过程）传回主会话
 - 定义在 `.claude/agents/*.md`，通过 YAML 前端元数据配置模型、工具权限、系统提示
 - 子代理最多可嵌套多层级
@@ -275,7 +277,7 @@ description: 提交代码、推送并创建 PR
 <a id="id8"></a>
 ## ✅ 知识点8: 工程哲学与范式演进
 
-**理论**
+**工程范式的演变...**
 
 **一、复利工程 (Compounding Engineering)**
 > 每个小的优化会复利成巨大的生产力提升。Claude Code 本身的设计就是让每次 1% 的改进累积起来——更快的反馈、更准的自动化、更少的 friction。
