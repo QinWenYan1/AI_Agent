@@ -102,7 +102,7 @@
 
   | 层级 | 范围 | 是否提交 Git | 典型内容 |
   |------|------|-------------|----------|
-  | **项目级 (Project)** | 单个 Git 仓库 | ✅ 可提交 | CLAUDE.md, Slash Commands, MCP JSON |
+  | **项目级 (Project)** | 单个 Git 仓库 | ✅ 可提交 | `CLAUDE.md`, Slash Commands, MCP JSON |
   | **全局级 (Global)** | 用户所有项目 | ❌ 个人 | 个人偏好、快捷方式 |
   | **企业级 (Enterprise)** | 全公司统一 | 管理员下发 | 安全策略、自动审批规则 |
 
@@ -128,33 +128,21 @@
 <a id="id4"></a>
 ## ✅ 知识点4: 配置一次，团队共享
 
-**理论**
-- 核心原则：**不要每个工程师各自配置，而是配置一次、提交到 Git、全员受益**
-- 推荐的入门路径：从**共享项目上下文**开始——一个人写好 `CLAUDE.md`，团队所有人都能获得更好的 Claude 体验，形成**网络效应**
-- 团队共享的典型内容：
+**配置也是非常简单直接...**
+- **核心原则**：**不要每个工程师各自配置，而是配置一次、提交到 Git、全员受益**
+- **团队共享的典型内容**：
   - `CLAUDE.md`：项目知识、编码规范、常用命令
   - `.claude/commands/`：团队 Slash Commands（如 `/label-issues`、`/commit-push-pr`）
   - `.mcp.json`：MCP 服务器配置（如 Puppeteer、Slack、GitHub）
   - 权限预配置：企业策略中预授权安全的常用命令
-- **`/memory` 命令**：查看当前会话加载了哪些 memory 文件（企业策略 → 用户全局 → 项目 CLAUDE.md → 嵌套 CLAUDE.md）
-- **`#` 记忆捕获**：在会话中按 `#` 键，选择目标 memory 文件，将当前学习到的规则持久化
+  ![alt text](images/1.png)
+> ⚠️ **推荐的入门路径**：从**共享项目上下文**开始——一个人写好 `CLAUDE.md`，团队所有人都能获得更好的 Claude 体验，形成**网络效应**
+- **`/memory` 命令**：**查看当前会话加载了哪些 memory 文件**
+- **`#` 记忆捕获命令**：在会话中按 `#` 键，Claude Code 会弹出菜单让你选择目标 memory 文件，然后将当前对话中学到的规则或经验持久化写入该文件。
+  ![alt text](images/2.png)
 
-**命令/配置示例**
-```bash
-/memory    # 查看所有被加载的 memory 文件及其来源
-#          # 在会话中按 # 键，将当前经验写入指定的 memory 文件
+> 💡 **理解技巧**：Slash Commands 也可以提交到 Git——例如 Anthropic 内部用 Claude Code 自动为 GitHub Issues 打标签，背后就是一个团队共享的 Slash Command + GitHub Action
 
-# 实际团队案例：在 apps 仓库中
-# 1. 将 Puppeteer MCP JSON 提交到代码库
-# 2. 任何工程师在该仓库中启动 Claude Code
-# 3. 自动提示安装 MCP 服务器
-# 4. 无需每人手动配置 → 开箱即用
-```
-
-**注意点**
-- 💡 **理解技巧**：团队共享的本质是**写一次，N 人受益**——不仅节省每个人的配置时间，更关键的是保证了团队使用 Claude Code 的一致性
-- 💡 **理解技巧**：Slash Commands 也可以提交到 Git——例如 Anthropic 内部用 Claude Code 自动为 GitHub Issues 打标签，背后就是一个团队共享的 Slash Command + GitHub Action
-- 🔄 **知识关联**：Slash Commands 的创建和 `$ARGUMENTS` 用法详见 [03-advanced-patterns.md](./03-advanced-patterns.md)
 
 ---
 
@@ -178,7 +166,7 @@
 **注意点**
 - ⚠️ **关键区分**：`Edit` 优于 `Write`——`Edit` 做精确字符串替换，不会意外覆盖文件中不相关的部分
 - 💡 **理解技巧**：Claude 会**自己编排工具的使用顺序**——你不需要逐工具指导，只需说"做这件事"，它会自动决定先用哪个工具、后用哪个工具
-- 🔄 **知识关联**：工具权限的白名单策略在 [01-foundation.md](./01-foundation.md) 中有详细介绍
+
 
 ---
 
