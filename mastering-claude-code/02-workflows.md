@@ -10,66 +10,70 @@
 - [*知识点2: `CLAUDE.md` 编写与维护*](#id2)
 - [*知识点3: 配置层级体系*](#id3)
 - [*知识点4: 配置一次，团队共享*](#id4)
-- [*知识点5: 内置工具矩阵（扩充）*](#id5)
-- [*知识点6: Hooks 事件体系（扩充）*](#id6)
-- [*知识点7: PostToolUse Hook（扩充）*](#id7)
-- [*知识点8: Stop Hook 与质量守护（扩充）*](#id8)
-- [*知识点9: 验证循环进阶（扩充）*](#id9)
-- [*知识点10: 上下文管理进阶（扩充）*](#id10)
+- [*知识点5: 内置工具矩阵*](#id5)
+- [*知识点6: Hooks 事件体系*](#id6)
+- [*知识点7: PostToolUse Hook*](#id7)
+- [*知识点8: Stop Hook 与质量守护*](#id8)
+- [*知识点9: 验证循环进阶*](#id9)
+- [*知识点10: 上下文管理进阶*](#id10)
 
 ---
 
 <a id="id1"></a>
-## ✅ 知识点1: `CLAUDE.md` 上下文文件体系 (CLAUDE.md Context System)
+## ✅ 知识点1: `CLAUDE.md` 上下文文件体系 
 
-**理论**
-- `CLAUDE.md` 是整个 Claude Code 里**最高杠杆的配置文件**——它告诉 Claude 关于你的项目、团队、工具的一切上下文
+**给CC更多上下文...**
+
+- `CLAUDE.md` 是整个 Claude Code 里**最高杠杆的配置文件**：它告诉 Claude 关于你的项目、团队、工具的一切上下文
 - Claude Code 启动时会**自动读取** `CLAUDE.md`，将其注入到第一个用户对话轮次中，无需手动加载
 - 最简单的放置位置：**项目根目录**（与启动 `claude` 的目录相同）
 - 文件层级体系：
+  | 优先级 | 位置 | 作用域 | 版本控制 |
+  |--------|------|--------|----------|
+  | 1 | `<enterprise root>/CLAUDE.md` | 全公司 | 管理员配置 |
+  | 2 | `~/.claude/CLAUDE.md` | 用户全局 | 个人维护 |
+  | 3 | `<project>/CLAUDE.md`  | 项目级 | ✅ 提交到 Git |
+  | 4 | `<project>/CLAUDE.local.md` | 本地覆盖自己用 | ❌ 不提交 |
+  | 5 | `<project>/.claude/rules/*.md` | 用户规则集 | 支持懒加载 |
 
-| 优先级 | 位置 | 作用域 | 版本控制 |
-|--------|------|--------|----------|
-| 1 | 企业管控策略 (Enterprise Policy) | 全公司 | 管理员配置 |
-| 2 | `~/.claude/CLAUDE.md` | 用户全局 | 个人维护 |
-| 3 | `<project>/CLAUDE.md` 或 `.claude/CLAUDE.md` | 项目级 | ✅ 提交到 Git |
-| 4 | `<project>/CLAUDE.local.md` | 本地覆盖 | ❌ 不提交 |
-| 5 | `<project>/.claude/rules/*.md` | 用户规则集 | 支持懒加载 |
+- **嵌套目录 `CLAUDE.md`**：放在子目录中的 `CLAUDE.md` 会在 Claude 处理该目录时**按需自动加载**，而不是一次性全部塞进上下文，**懒加载模式**
+  - `project-root/a/CLAUDE.md` → 按需自动拉取（Pulled in on demand）
+- 除了 `CLAUDE.md`，还有多种注入上下文的方式：
+  | 类型    | 路径/用法                     | 调用方式              |
+  | ----- | ------------------------- | ----------------- |
+  | 用户级命令 | `~/.claude/commands/*.md` | `/user:命令名`       |
+  | 项目级命令 | `.claude/commands/*.md`   | `/project:命令名`    |
+  | 子目录命令 | `子目录/commands/*.md`       | `/project:目录:命令名` |
+  | 引用文件  | 任意文件路径                    | `@路径`             |
+  | 自动上下文 | 任意 `CLAUDE.md`            | 按需自动拉取            |
 
-- **嵌套目录 `CLAUDE.md`**：放在子目录中的 `CLAUDE.md` 会在 Claude 处理该目录时**按需自动加载**，而不是一次性全部塞进上下文
-- 除了 `CLAUDE.md`，还有多种注入上下文的方式：`@` 引用文件/文件夹、Slash Commands（`.claude/commands/`）
+- **实例**：
+  ```
+    .claude/
+    ├── commands/
+    │   ├── create-release-pr.md      # 创建发布 PR
+    │   ├── fix-github-issue.md       # 修复 GitHub Issue
+    │   ├── get-feedback.md           # 获取反馈
+    │   ├── label-github-issues.md    # 标记 GitHub Issue
+    │   └── lint.md                   # 代码检查
+    ├── settings.json                 # 项目设置
+    └── settings.local.json           # 本地设置（不提交）
+  ```
 
-**命令/配置示例**
-```markdown
-# CLAUDE.md 示例骨架
-## 常用命令
-- 测试: npm test
-- Lint: npm run lint
-- 构建: npm run build
+- **自定义命令**
+  - `~/.claude/commands/foo.md` → 输入 `/user:foo` 调用
+  - `project-root/.claude/commands/foo.md` → 输入 `/project:foo` 调用
+  - `project-root/a/commands/foo.md` → 输入 `/project:a:foo` 调用
 
-## 技术栈
-- TypeScript + React + Node.js
-- PostgreSQL, Redis
+- **文件引用**
+  - `project-root/a/foo.py` → 输入 `@a/foo.py` 引用该文件
 
-## 编码规范
-- 使用 async/await，避免回调
-- 函数不超过 40 行
-
-## 禁止模式
-- 不要使用 any 类型
-- 不要直接操作 DOM
-```
-
-**注意点**
-- ⚠️ **关键区分**：`CLAUDE.md` ≠ Prompt。它是**持久化的项目知识**，而 Prompt 是一次性的任务描述
-- 💡 **理解技巧**：把 `CLAUDE.md` 类比为"新员工入职文档"——你希望新人（Claude）在动手前就知道的所有上下文。给 Claude 越多上下文，它的决策越明智
-- 💡 **理解技巧**：花时间调优上下文是**值得的投资**——做好了对性能有巨大的提升
-- 📋 **术语提醒**：`Enterprise Policy(企业管控策略)` — 管理员远程下发，个人不可修改；`Lazy Loading(懒加载)` — 按需加载，避免一次性塞入过多 token
+> ⚠️ **关键区分**：`CLAUDE.md` ≠ Prompt。它是**持久化的项目知识**，而 Prompt 是一次性的任务描述
 
 ---
 
 <a id="id2"></a>
-## ✅ 知识点2: `CLAUDE.md` 编写与维护 (CLAUDE.md Maintenance)
+## ✅ 知识点2: `CLAUDE.md` 编写与维护 
 
 **理论**
 - **保持精简**：目标 ≤ 200 行/文件，个人偏好约 60 行。臃肿的 `CLAUDE.md` 会导致模型 drift（行为漂移），开始忽略指令
@@ -87,7 +91,7 @@
 ---
 
 <a id="id3"></a>
-## ✅ 知识点3: 配置层级体系 (Configuration Hierarchy)
+## ✅ 知识点3: 配置层级体系 
 
 **理论**
 - Claude Code 的配置支持**层级化管理**，从项目到全局到企业策略，形成嵌套的优先级体系：
@@ -123,7 +127,7 @@
 ---
 
 <a id="id4"></a>
-## ✅ 知识点4: 配置一次，团队共享 (Configure Once, Share with Team)
+## ✅ 知识点4: 配置一次，团队共享
 
 **理论**
 - 核心原则：**不要每个工程师各自配置，而是配置一次、提交到 Git、全员受益**
@@ -156,7 +160,7 @@
 ---
 
 <a id="id5"></a>
-## ✅ 知识点5: 内置工具矩阵（扩充） (Built-in Tools)
+## ✅ 知识点5: 内置工具矩阵
 
 **理论**
 - Claude Code 自带一组内置工具（Tools），让 Claude 可以直接与环境交互。理解这些工具的能力边界是高效使用 Claude Code 的前提
@@ -180,7 +184,7 @@
 ---
 
 <a id="id6"></a>
-## ✅ 知识点6: Hooks 事件体系（扩充） (Hooks System)
+## ✅ 知识点6: Hooks 事件体系
 
 **理论**
 - Hooks 是在 Claude Code **生命周期特定节点**自动触发的处理程序。与 AI 推理不同，Hooks 是**确定性的、可预测的**
@@ -356,10 +360,4 @@
 4. **Hooks 是"设置一次，受益终身"的投资**——PostToolUse 自动格式化和 Stop Hook 质量守护是最值得配置的两个
 5. **验证循环是终极大招**——让 Claude 跑测试 → 看到失败 → 自己修复，质量提升 2-3 倍
 
-## 📌 实践速查
-
-- **CLAUDE.md 速查**：项目根目录放置 → 自动加载；嵌套目录 → 按需加载；`/init` 生成骨架
-- **配置层级速查**：项目 `.claude/` → 全局 `~/.claude/` → 企业策略（最高优先级）
-- **Hook 配置速查**：`PostToolUse` + `Write|Edit` matcher → `"bun run format || true"` | `Stop` → prompt 验证提醒
-- **验证循环速查**：`npm test` → 失败 → 自动修复 → `npm test` → 通过 → `eslint` → `tsc --noEmit`
-- **上下文命令速查**：`/compact` 压缩 | `/compact "hint"` 聚焦压缩 | `/clear` 重置 | `Esc × 2` 回退
+---

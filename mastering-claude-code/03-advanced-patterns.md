@@ -327,11 +327,4 @@ Prompt Engineering  →  Context Engineering  →  Loop Engineering
 5. **MCP 让 Claude Code 从代码工具升级为全栈平台**——代码 + 数据 + 协作 + 监控一站式
 6. **从 Prompt Engineering 到 Loop Engineering**——从"操作 AI"到"设计 AI 的自主循环"
 
-## 📌 实践速查
-
-- **快捷键速查**：`@` 引用文件 | `!` Bash 模式 | `Shift+Tab` Auto 模式 | `Esc` 停止 | `Esc×2` 回退 | `Ctrl+R` 详细输出
-- **SDK 速查**：`claude -p "prompt" --output-format json --allowedTools "Bash(git log:*)"`
-- **Worktree 速查**：`git worktree add .claude/worktrees/<name> <branch>` | `git worktree list` | `git worktree remove <path>`
-- **复用决策速查**：独立子任务 → Sub-agent | 可复用工作流 → Skill | 快捷指令 → Slash Command
-- **MCP 配置位置**：`.mcp.json` 或 `.claude/settings.json` → `mcpServers` 字段
-- **循环工程本质**：不和人对话，和循环对话——你设计规则，循环驱动 Claude
+---

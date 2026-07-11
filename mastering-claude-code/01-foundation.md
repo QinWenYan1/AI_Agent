@@ -125,7 +125,7 @@
 - 两类工具：
   - **Bash CLI 工具**：告诉 Claude 你的 CLI 名称，它可以用 `--help` 自学用法
   - **MCP 工具**：通过 MCP（Model Context Protocol）接入外部服务，Claude 可以代表你使用这些工具
-- **结合工具的 3 中最常见工作流**：
+
 
 > 📋 **术语提醒**：`MCP(Model Context Protocol)` — Anthropic 开源的标准协议，让 LLM 与外部工具/数据源安全通信
 
@@ -164,6 +164,7 @@
         - 按照 `[mock.png]` **实现界面**
         - 使用 **Puppeteer** 截图
         - 不断**迭代调整**，直到效果与 mock 一致
+- 根据实际任务来找到合适的工作流
 
 
 > 💡 **理解技巧**：无论什么领域，只要给 Claude 一个**看到自己结果**的方式，它就会自驱动改进
