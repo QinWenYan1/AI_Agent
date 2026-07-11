@@ -9,50 +9,45 @@
 - [*知识点1: 核心快捷键*](#id1)
 - [*知识点2: SDK / CLI 脚本化*](#id2)
 - [*知识点3: 并行会话与 Git Worktree*](#id3)
-- [*知识点4: Sub-agents 子代理（扩充）*](#id4)
-- [*知识点5: Skills 技能包（扩充）*](#id5)
-- [*知识点6: Slash Commands 自定义命令（扩充）*](#id6)
-- [*知识点7: MCP 外部工具集成（扩充）*](#id7)
-- [*知识点8: 工程哲学与范式演进（扩充）*](#id8)
+- [*知识点4: Sub-agents 子代理*](#id4)
+- [*知识点5: Skills 技能包*](#id5)
+- [*知识点6: Slash Commands 自定义命令*](#id6)
+- [*知识点7: MCP 外部工具集成*](#id7)
+- [*知识点8: 工程哲学与范式演进*](#id8)
 
 ---
 
 <a id="id1"></a>
-## ✅ 知识点1: 核心快捷键 (Essential Keybindings)
+## ✅ 知识点1: 核心快捷键 
 
-**理论**
+**对常用任务我们有核心快捷键...**
 - 终端应用的交互方式极度精简，很多快捷键不太容易被发现。以下是最高频的几个：
 - 所有快捷键可以通过 `/keybindings` 自定义，配置文件存储在 `~/.claude/keybindings.json`
 
-| 快捷键 | 行为 | 使用场景 |
-|--------|------|----------|
-| `Shift+Tab` | 切换到 Auto-accept Edits 模式 | 编辑自动接受（Bash 仍需审批），适合写测试、已知方向对的场景 |
-| `#` | 记忆捕获 | 把当前交互经验追加到指定 `CLAUDE.md` memory 文件 |
-| `!` | Bash 模式 | 直接运行 Shell 命令，命令+输出都会进入上下文窗口 |
-| `@` | 文件/文件夹引用 | 将指定文件内容拉入上下文窗口 |
-| `Esc` | 安全停止 | 中断当前操作，不会破坏会话，可随时安全使用 |
-| `Esc` × 2 | 回退历史 | 跳到之前的对话状态（之后可用 `claude --resume` 或 `--continue` 恢复） |
-| `Ctrl+R` | 详细输出 | 展示 Claude 上下文窗口中看到的完整输出（verbose output） |
+  | 快捷键 | 行为 | 使用场景 |
+  |--------|------|----------|
+  | `Shift+Tab` | 切换到 Auto-accept Edits 模式 | 编辑自动接受（Bash 仍需审批），适合写测试、已知方向对的场景 |
+  | `#` | 记忆捕获 | 把当前交互经验追加到指定 `CLAUDE.md` memory 文件 |
+  | `!` | Bash 模式 | 直接运行 Shell 命令，命令+输出都会进入上下文窗口 |
+  | `@` | 文件/文件夹引用 | 将指定文件内容拉入上下文窗口 |
+  | `Esc` | 安全停止 | 中断当前操作，不会破坏会话，可随时安全使用 |
+  | `Esc` × 2 | 回退历史 | 跳到之前的对话状态（之后可用 `claude --resume` 或 `--continue` 恢复） |
+  | `Ctrl+R` | 详细输出 | 展示 Claude 上下文窗口中看到的完整输出（verbose output） |
 
-**命令/配置示例**
-```bash
-/vim          # 启用 Vim 模式
-/keybindings  # 打开键位自定义面板
-```
+- **命令/配置示例**
+  ```bash
+  /vim          # 启用 Vim 模式
+  /keybindings  # 打开键位自定义面板
+  ```
 
-**注意点**
-- 💡 **理解技巧**：最常用的三个快捷键——`@` 给上下文、`!` 跑命令、`Shift+Tab` 切模式。记住这三个就能覆盖 80% 的日常操作
-- 💡 **理解技巧**：`Esc` 的使用场景——比如 Claude 生成了一个 20 行的编辑，19 行没问题但 1 行需要改，按 `Esc` 停止，告诉它具体改哪里，然后让它重做
-- 💡 **理解技巧**：`!` Bash 模式特别适合长命令和已知操作——你在 Bash 里跑的命令和输出都会被 Claude 看到，作为下一轮的上下文
-- 🔄 **知识关联**：`Shift+Tab` 进入 Auto Mode 是 [01-foundation.md](./01-foundation.md) 中 Plan Mode 的后续步骤
-- 📋 **术语提醒**：`Verbose Output(详细输出)` — 展示 Claude 每一步的推理过程，类似 "show your work"
+> 📋 **术语提醒**：`Verbose Output(详细输出)` — 展示 Claude 每一步的推理过程，类似 "show your work"
 
 ---
 
 <a id="id2"></a>
-## ✅ 知识点2: SDK / CLI 脚本化 (SDK & CLI Scripting)
+## ✅ 知识点2: SDK / CLI 脚本化 
 
-**理论**
+**脚本 Claude ...**
 - Claude Code 支持**非交互式 CLI 调用**，可以嵌入 Shell 脚本、CI/CD 管道。本质上就是把 Claude 当成一个**超级智能的 Unix 工具**
 - 核心参数：
   - `claude -p "prompt"` — 单次问答，输出到 stdout
@@ -60,42 +55,43 @@
   - `--allowedTools` — 限制可用工具，如 `Bash(git log:*)`
 - **Unix 管道组合**：`claude -p` 的输出可以 pipe 给其他命令，也可以从其他命令 pipe 输入给 Claude
 - 典型场景：CI 自动化、事件响应管道、日志分析——"我们把表面刚刚刮开，还不知道能用它做什么"
+> 💡 **理解技巧**：`claude -p` 是非交互式的——没有 Plan Mode、没有模式切换。适合"输入 → 输出"的管道式任务，不适合交互式探索
 
-**命令/配置示例**
-```bash
-# 基础用法：单次问答
-claude -p "explain what this repository does" --output-format json
+> 💡 **理解技巧**：把 Claude 想象成一个 Unix 工具——你 pipe 数据进去，它 pipe JSON 出来。这个心智模型刚刚开始被探索，组合的可能性无穷无尽
 
-# 限制工具：只允许 git log
-claude -p "summarize the last 10 commits" --allowedTools "Bash(git log:*)"
+- **命令/配置示例**
+  ```bash
+  # 基础用法：单次问答
+  claude -p "explain what this repository does" --output-format json
 
-# Unix 管道——输出 pipe 给其他命令
-claude -p "review this code for bugs" --output-format json | jq '.findings[]'
+  # 限制工具：只允许 git log
+  claude -p "summarize the last 10 commits" --allowedTools "Bash(git log:*)"
 
-# Unix 管道——从其他命令 pipe 输入
-git diff HEAD~5 | claude -p "Summarize the key changes in this diff"
+  # Unix 管道——输出 pipe 给其他命令
+  claude -p "review this code for bugs" --output-format json | jq '.findings[]'
 
-# 从 GCP bucket 读日志，pipe 给 Claude
-gsutil cat gs://bucket/logs.txt | claude -p "Find anomalies in this log"
+  # Unix 管道——从其他命令 pipe 输入
+  git diff HEAD~5 | claude -p "Summarize the key changes in this diff"
 
-# CI/CD 集成——GitHub Actions 示例
-- name: Claude Code Review
-  run: |
-    claude -p "review the PR diff. Report only critical bugs." \
-      --allowedTools "Read(*)" \
-      --output-format json > review.json
-```
+  # 从 GCP bucket 读日志，pipe 给 Claude
+  gsutil cat gs://bucket/logs.txt | claude -p "Find anomalies in this log"
 
-**注意点**
-- 💡 **理解技巧**：`claude -p` 是非交互式的——没有 Plan Mode、没有模式切换。适合"输入 → 输出"的管道式任务，不适合交互式探索
-- 💡 **理解技巧**：把 Claude 想象成一个 Unix 工具——你 pipe 数据进去，它 pipe JSON 出来。这个心智模型刚刚开始被探索，组合的可能性无穷无尽
-- 🔄 **知识关联**：SDK 模式下，验证循环需要你自己在脚本中实现——`claude -p "fix"` → 跑测试 → `claude -p "fix tests"` → …
-- 📋 **术语提醒**：`Non-interactive(非交互式)` — 程序直接调用，没有人在中间审查每一步
+  # CI/CD 集成——GitHub Actions 示例
+  - name: Claude Code Review
+    run: |
+      claude -p "review the PR diff. Report only critical bugs." \
+        --allowedTools "Read(*)" \
+        --output-format json > review.json
+  ```
+
+> 🔄 **知识关联**：SDK 模式下，验证循环需要你自己在脚本中实现——`claude -p "fix"` → 跑测试 → `claude -p "fix tests"` → …
+
+> 📋 **术语提醒**：`Non-interactive(非交互式)` — 程序直接调用，没有人在中间审查每一步
 
 ---
 
 <a id="id3"></a>
-## ✅ 知识点3: 并行会话与 Git Worktree (Parallel Sessions & Git Worktrees)
+## ✅ 知识点3: 并行会话与 Git Worktree 
 
 **理论**
 - 高级用户常见的模式：**同时运行多个 Claude Code 会话**，每个专注一个独立任务（架构设计、功能开发、测试、文档……），互不干扰
@@ -135,9 +131,9 @@ git worktree remove .claude/worktrees/feature-auth
 ---
 
 <a id="id4"></a>
-## ✅ 知识点4: Sub-agents 子代理（扩充） (Sub-agents)
+## ✅ 知识点4: Sub-agents 子代理
 
-**理论**
+**多 Claude 操作...**
 - Sub-agent 是 Claude Code 的**上下文隔离机制**——把一个子任务派发给独立的 Claude 实例，它有自己干净的上下文窗口，完成后只把**结论**（而非完整过程）传回主会话
 - 定义在 `.claude/agents/*.md`，通过 YAML 前端元数据配置模型、工具权限、系统提示
 - 子代理最多可嵌套多层级
@@ -167,7 +163,7 @@ model: opus
 ---
 
 <a id="id5"></a>
-## ✅ 知识点5: Skills 技能包（扩充） (Skills)
+## ✅ 知识点5: Skills 技能包
 
 **理论**
 - Skills 是**可复用的打包工作流**，存储在 `.claude/skills/<name>/SKILL.md`
@@ -199,7 +195,7 @@ description: 提交代码、推送并创建 PR
 ---
 
 <a id="id6"></a>
-## ✅ 知识点6: Slash Commands 自定义命令（扩充） (Custom Slash Commands)
+## ✅ 知识点6: Slash Commands 自定义命令
 
 **理论**
 - Slash Commands 是**最轻量级的复用单元**——一个 `.md` 文件放在 `.claude/commands/` 下，就变成了 `/command-name`
@@ -236,7 +232,7 @@ description: 提交代码、推送并创建 PR
 ---
 
 <a id="id7"></a>
-## ✅ 知识点7: MCP 外部工具集成（扩充） (MCP Integration)
+## ✅ 知识点7: MCP 外部工具集成
 
 **理论**
 - MCP（`Model Context Protocol`）允许 Claude Code 连接外部服务和数据源
@@ -277,7 +273,7 @@ description: 提交代码、推送并创建 PR
 ---
 
 <a id="id8"></a>
-## ✅ 知识点8: 工程哲学与范式演进（扩充） (Engineering Philosophy & Paradigm Evolution)
+## ✅ 知识点8: 工程哲学与范式演进
 
 **理论**
 
