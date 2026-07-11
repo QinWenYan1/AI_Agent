@@ -201,7 +201,7 @@
 <a id="id6"></a>
 ## ✅ 知识点6: Slash Commands 自定义命令
 
-**我们还可以自定义常用的命令...**
+**我们还可以自定义常用的命令..**
 - Slash Commands 是**最轻量级的复用单元**——一个 `.md` 文件放在 `.claude/commands/` 下，就变成了 `/command-name`
 - 文件内容就是 prompt 模板，支持 `$ARGUMENTS` 占位符接收参数
 - 适合重复性操作：`/commit-push-pr`、`/techdebt`、`/bump-version`
