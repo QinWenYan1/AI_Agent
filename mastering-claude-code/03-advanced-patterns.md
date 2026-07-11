@@ -168,32 +168,31 @@
 <a id="id5"></a>
 ## ✅ 知识点5: Skills 技能包
 
-**理论**
+**一个工作流用了多次，如何处理?**
 - Skills 是**可复用的打包工作流**，存储在 `.claude/skills/<name>/SKILL.md`
 - 与 Sub-agents 的区别：Skills 的指令直接注入当前上下文（不新建实例），适合**过程性知识**
 - 支持渐进式披露（Progressive Disclosure）：SKILL.md 主体 → `references/` 详细文档 → `scripts/` 辅助脚本，只在被调用时才加载
 - 核心原则：**"如果你一天内做某件事超过一次，就把它变成 Skill 或 Command"**
 
-**命令/配置示例**
-```markdown
-<!-- .claude/skills/commit-push-pr/SKILL.md -->
----
-name: commit-push-pr
-description: 提交代码、推送并创建 PR
----
+- **命令/配置示例**
+  ```markdown
+  <!-- .claude/skills/commit-push-pr/SKILL.md -->
+  ---
+  name: commit-push-pr
+  description: 提交代码、推送并创建 PR
+  ---
 
-## 流程
-1. 运行 `git diff --stat` 检查变更
-2. 运行 `npm test` 确保测试通过
-3. 生成 conventional commit message
-4. `git commit` + `git push`
-5. 用 `gh pr create` 创建 PR，标题和描述自动生成
-```
+  ## 流程
+  1. 运行 `git diff --stat` 检查变更
+  2. 运行 `npm test` 确保测试通过
+  3. 生成 conventional commit message
+  4. `git commit` + `git push`
+  5. 用 `gh pr create` 创建 PR，标题和描述自动生成
+  ```
 
-**注意点**
-- 💡 **理解技巧**：Skill vs Command——两者本质相同（都是 Markdown 文件），但 Skill 可以有子目录（`references/`、`scripts/`）支持渐进式加载，Command 更轻量
-- 🔄 **知识关联**：Skills 的三层结构（主指令 → 详细参考 → 脚本）是"渐进式披露"设计模式的实践
-- 📋 **术语提醒**：`Progressive Disclosure(渐进式披露)` — 先加载概要，需要时再加载详细内容，节省上下文 token
+> 💡 **理解技巧**：Skill vs Command——两者本质相同（都是 Markdown 文件），但 Skill 可以有子目录（`references/`、`scripts/`）支持渐进式加载，Command 更轻量
+> 🔄 **知识关联**：Skills 的三层结构（主指令 → 详细参考 → 脚本）是"渐进式披露"设计模式的实践
+> 📋 **术语提醒**：`Progressive Disclosure(渐进式披露)` — 先加载概要，需要时再加载详细内容，节省上下文 token
 
 ---
 
