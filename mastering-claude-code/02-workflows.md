@@ -305,7 +305,8 @@
   | 浏览器截图 | Puppeteer, Chrome DevTools MCP | UI 视觉验证 |
   | iOS 模拟器 | Xcode Simulator | 移动端验证 |
 
-- **自动验证手段**：Stop, PostToolUse 等 Hook 在验证阶段执行配置好的验证工具
+- **自动验证手段**：Stop/PostToolUse 等 Hook 在验证阶段执行配置好的验证工具
+  - `settings.json` 将不同 Hooks 配置不同的验证工具
 
 - **命令/配置示例**
   ```bash
