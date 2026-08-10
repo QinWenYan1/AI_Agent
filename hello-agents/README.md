@@ -9,9 +9,9 @@
 ### Part 1: 智能体与语言模型基础
 
 #### [第1章 初识智能体](./part1-fundamentals/ch1-introduction-to-agents.md)
-- **核心**：Agent 定义与感知-思考-行动-观察循环、PEAS 模型、五种传统智能体类型
-- **难点**：理解 Agent 的自主性——不是调用链，而是动态决策
-- **扩充**：Agent vs Workflow 的本质区别
+- **核心**：Agent 定义四要素（传感器/执行器/环境/自主性）、传统智能体五型演进、智能体循环（Agent Loop）与 `Thought-Action-Observation` 交互协议
+- **难点**：三个分类维度——决策架构 / 时间与反应性（反应式·规划式·混合式）/ 知识表示（符号·亚符号·神经符号）
+- **扩充**：5 分钟手写旅行助手（提示词模板+工具+主循环全代码）、PEAS 与数字环境四特性、开发者工具 vs 自主协作者、Workflow vs Agent
 
 #### [第2章 智能体发展史](./part1-fundamentals/ch2-history-of-agents.md)
 - **核心**：符号主义/PSSH/专家系统、ELIZA 模式匹配、明斯基心智社会、联结主义/RL/预训练
