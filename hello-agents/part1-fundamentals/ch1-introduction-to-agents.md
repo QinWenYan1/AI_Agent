@@ -135,12 +135,3 @@
 
 ---
 
-## 📌 考试速记版
-
-- **Agent 四组件**：感知、规划、行动、记忆
-- **PEAS**：Performance, Environment, Actuators, Sensors
-- **Agent vs Workflow**：Workflow = 预定义路径；Agent = 自主达成目标
-- **五种类型**：反射 → 模型 → 目标 → 效用 → 学习
-- **LLM Agent 优势**：规划、工具调用、动态修正
-
-**记忆口诀**：感知思考行动观察，Agent 循环不停转；PEAS 四维多考量，目标效用学习强。
