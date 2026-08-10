@@ -25,6 +25,17 @@
   - MCP 外部工具集成
   - Loop Engineering 进化论
 
+#### [Hello-Agents: 从零开始构建智能体](./hello-agents/README.md)
+- **关键词**：
+  - `智能体(Agent)` 定义与分类
+  - `大语言模型(LLM)` Transformer 架构
+  - `ReAct` 经典范式构建
+  - `RAG` 记忆与检索
+  - `MCP/A2A` 通信协议
+  - `Agentic-RL` 强化学习
+  - `Context Engineering` 上下文工程
+  - 智能体性能评估
+
 </details>
 
 ---
@@ -38,5 +49,7 @@
 | **Boris Cherny 演讲总结（nibzard）** | https://www.nibzard.com/claude-code/ |
 | **Claude Code Best Practice（GitHub）** | https://github.com/shanraisshan/claude-code-best-practice |
 | **WebProNews Claude Code Mastery** | https://www.webpronews.com/claude-code-mastery-boris-chernys-playbook-for-agentic-engineering-in-2026/ |
+| **Hello-Agents 教程（GitHub）** | https://github.com/datawhalechina/hello-agents |
+| **Hello-Agents 在线阅读** | https://hello-agents.datawhale.cc |
 
 </details>
