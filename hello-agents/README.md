@@ -6,30 +6,69 @@
 
 ## 📋 笔记导航与重难点
 
-### [01. 智能体与语言模型基础](./01-agent-fundamentals.md)
-- **核心**：Agent 的四大组件（感知/规划/行动/记忆）、Agent vs Workflow 的本质区别、LLM 的 Prompt 工程基础
-- **难点**：理解 Agent 的自主性（Autonomy）——不是调用链，而是动态决策
-- **扩充**：Agent 发展简史、从 GPT 到 ChatGPT 到 Agent 的演进脉络
+### Part 1: 智能体与语言模型基础
 
-### [02. 构建你的大语言模型智能体](./02-building-agents.md)
-- **核心**：`ReAct` 范式（Reasoning + Acting）、低代码平台搭建、框架开发实践、手写 Agent 框架
-- **难点**：ReAct 的 Thought → Action → Observation 循环设计；框架的抽象层级设计
-- **扩充**：低代码平台（Dify/Coze）vs 手写框架的取舍
+#### [第1章 初识智能体](./part1-fundamentals/ch1-introduction-to-agents.md)
+- **核心**：Agent 定义与感知-思考-行动-观察循环、PEAS 模型、五种传统智能体类型
+- **难点**：理解 Agent 的自主性——不是调用链，而是动态决策
+- **扩充**：Agent vs Workflow 的本质区别
 
-### [03. 高级知识扩展](./03-advanced-topics.md)
-- **核心**：`RAG` 记忆与检索、`Context Engineering` 上下文工程、`MCP/A2A` 通信协议、`Agentic-RL` 强化学习、性能评估
-- **难点**：RAG 的 Chunk 策略与检索质量调优；MCP 协议的工具发现机制；Agentic-RL 的奖励设计
-- **扩充**：评估指标体系的搭建
+#### [第2章 智能体发展史](./part1-fundamentals/ch2-history-of-agents.md)
+- **核心**：符号主义/PSSH/专家系统、ELIZA 模式匹配、明斯基心智社会、联结主义/RL/预训练
+- **难点**：三大学派的演进逻辑——每个新范式解决上一代的痛点
+- **扩充**：现代 LLM Agent 是三派融合的完整形态
 
-### [04. 综合案例进阶](./04-projects.md)
-- **核心**：智能旅行助手（trip-planner）、自动化深度研究（deep-research）、赛博小镇（AI-Town）三个完整项目
-- **难点**：多 Agent 协作的架构设计、长链路任务的错误处理
-- **扩充**：项目中的工程化经验
+#### [第3章 大语言模型基础](./part1-fundamentals/ch3-llm-fundamentals.md)
+- **核心**：Transformer 架构（Q/K/V/多头注意力）、Decoder-Only 自回归、Prompt Engineering、BPE 分词
+- **难点**：自注意力机制的计算过程、Temperature/Top-k/Top-p 的协同
+- **扩充**：缩放法则与能力涌现、幻觉缓解策略
 
-### [05. 毕业设计及未来展望](./05-capstone-and-outlook.md)
-- **核心**：毕业设计选题指导、Agent 技术未来趋势
-- **难点**：从学习者到构建者的角色转换
-- **扩充**：社区生态与职业发展方向
+### Part 2: 构建你的大语言模型智能体
+
+#### 第4章 智能体经典范式构建
+> ⏳ 待补充——`ReAct` 范式（Reasoning + Acting）
+
+#### 第5章 基于低代码平台的智能体搭建
+> ⏳ 待补充——Dify/Coze 低代码平台
+
+#### 第6章 框架开发实践
+> ⏳ 待补充——Agent 框架的开发经验
+
+#### 第7章 构建你的Agent框架
+> ⏳ 待补充——手写 Agent 框架
+
+### Part 3: 高级知识扩展
+
+#### 第8章 记忆与检索
+> ⏳ 待补充——`RAG` 记忆与检索
+
+#### 第9章 上下文工程
+> ⏳ 待补充——`Context Engineering`
+
+#### 第10章 智能体通信协议
+> ⏳ 待补充——`MCP/A2A` 协议
+
+#### 第11章 Agentic-RL
+> ⏳ 待补充——强化学习驱动的智能体
+
+#### 第12章 智能体性能评估
+> ⏳ 待补充——评估指标体系
+
+### Part 4: 综合案例进阶
+
+#### 第13章 智能旅行助手
+> ⏳ 待补充——helloagents-trip-planner 项目
+
+#### 第14章 自动化深度研究智能体
+> ⏳ 待补充——helloagents-deep-research 项目
+
+#### 第15章 构建赛博小镇
+> ⏳ 待补充——Helloagents-AI-Town 多 Agent 仿真
+
+### Part 5: 毕业设计及未来展望
+
+#### 第16章 毕业设计
+> ⏳ 待补充——毕业设计指导与未来趋势
 
 ---
 
