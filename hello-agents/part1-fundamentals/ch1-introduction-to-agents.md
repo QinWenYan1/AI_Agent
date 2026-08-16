@@ -436,7 +436,10 @@ for i in range(5): # 设置最大循环次数
 
 - `prompt_history` 累积全部历史（用户请求 + 每轮模型输出 + 每轮 Observation），每轮拼接后整体喂给 LLM——**智能体的"短期记忆"**
 - 最多循环 5 次——防止无限循环的安全阀
-- 正则截断：模型可能一次输出多对 Thought-Action，用前瞻断言只保留第一对
+- **正则截断**：模型可能一次输出多对 Thought-Action，用前瞻断言只保留第一对
+  - **只保留第一对的本质原因是**：ReAct 是一个"逐步感知-响应"的交互循环，而不是"一次性规划-批量执行"的批处理系统
+  - 每一对 thought-action 都必须经过"**执行 → 观察 → 再推理**"的闭环验证。
+  - 跳过 Observation 的 thought-action 只是 LLM 的"想象"，不具备与现实世界交互的可靠性。所以框架设计上强制"一次一步"，既是正确性保障，也是工程上的必要约束
 - `Finish[...]` 是约定的结束信号；否则解析工具名与参数（`(\w+)\(` + `(\w+)="([^"]*)"`），从 `available_tools` 查表调用
 
 **运行案例分析（三轮成功执行）：**
@@ -501,7 +504,7 @@ for i in range(5): # 设置最大循环次数
 
 > ⚠️ **关键区分**：多智能体协作三模式别混淆——CAMEL 是"两个角色对话"，MetaGPT/CrewAI 是"一个公司上班"，AutoGen/AgentScope 是"自由组网"
 >
-> 🔄 **知识关联**：多智能体协作的理论先驱可追溯到明斯基的"心智社会"，见 [ch2-history-of-agents.md#id5](./ch2-history-of-agents.md#id5)
+> 🔄 **知识关联**：多智能体协作的理论先驱可追溯到明斯基的"心智社会"，见 [ch2-history-of-agents.md#id8](./ch2-history-of-agents.md#id8)
 
 ---
 

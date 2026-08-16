@@ -14,9 +14,9 @@
 - **扩充**：5 分钟手写旅行助手（提示词模板+工具+主循环全代码）、PEAS 与数字环境四特性、开发者工具 vs 自主协作者、Workflow vs Agent
 
 #### [第2章 智能体发展史](./part1-fundamentals/ch2-history-of-agents.md)
-- **核心**：符号主义/PSSH/专家系统、ELIZA 模式匹配、明斯基心智社会、联结主义/RL/预训练
-- **难点**：三大学派的演进逻辑——每个新范式解决上一代的痛点
-- **扩充**：现代 LLM Agent 是三派融合的完整形态
+- **核心**：符号主义与 PSSH 两论断、专家系统（知识库+推理机）与 MYCIN、ELIZA 模式匹配复现（含完整代码）、明斯基心智社会与涌现
+- **难点**：符号主义四大根本挑战（知识获取瓶颈/常识问题/框架问题/脆弱性）、RL 五要素与累积奖励
+- **扩充**：联结主义→强化学习→预训练范式演进、LLM 智能体模块架构、三大思潮的融合
 
 #### [第3章 大语言模型基础](./part1-fundamentals/ch3-llm-fundamentals.md)
 - **核心**：Transformer 架构（Q/K/V/多头注意力）、Decoder-Only 自回归、Prompt Engineering、BPE 分词
