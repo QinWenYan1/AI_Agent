@@ -561,22 +561,3 @@ for i in range(5): # 设置最大循环次数
 7. **协作两模式与根本区分**：开发者工具（增强人）vs 自主协作者（目标委托）；Workflow 按部就班 vs Agent 自主达成——动态推理是 Agent 的核心价值
 
 ---
-
-## 📌 考试速记版
-
-- **定义四要素**：`传感器(Sensors)`、`执行器(Actuators)`、`环境(Environment)`、`自主性(Autonomy)`
-- **五型演进（原作名称）**：`反射智能体(Simple Reflex Agent)` → `基于模型的反射智能体(Model-Based Reflex Agent)` → `基于目标的智能体(Goal-Based Agent)` → `基于效用的智能体(Utility-Based Agent)` → `学习型智能体(Learning Agent)`
-- **五型各自回答**：该做什么 → 世界什么样 → 如何达成目标 → 怎样最满意 → 如何自我改进
-- **LLM 三大新能力**：规划与推理、工具使用、动态修正
-- **反应式 vs 规划式**：速度/低开销 vs 远见/高成本；混合式 = "思考-行动-观察"微循环
-- **知识表示三派**：符号主义（透明但脆弱）、亚符号主义（鲁棒但黑箱）、神经符号主义（系统1+系统2）
-- **PEAS**：`Performance / Environment / Actuators / Sensors`
-- **环境四特性**：部分可观察、随机性、多智能体、序贯且动态
-- **Agent Loop 三阶段**：感知 → 思考（规划+工具选择）→ 行动 →（状态变化）→ 新观察
-- **T-A-O 协议**：`Thought`（决策快照）→ `Action`（函数调用）→ Parser 执行 → `Observation`（自然语言封装）
-- **实践四件套**：`AGENT_SYSTEM_PROMPT`、`get_weather`/`get_attraction`、`available_tools` 字典、5 轮主循环
-- **四项基本能力**：任务分解、工具调用、上下文理解、结果合成
-- **自主协作三范式**：单智能体循环（AgentGPT）、多智能体协作（CAMEL/MetaGPT/AutoGen）、状态图控制流（LangGraph）
-- **金句**：Workflow 按部就班执行指令；Agent 自主达成目标——**动态推理是核心价值**
-
-**记忆口诀**：传感执行加自主，闭环构成智能体；反射模型到学习，五型演进问题驱；LLM 带来新范式，规划工具动态修；三维分类看架构，时间反应知识表；PEAS 先把环境定，循环感知思考行；T-A-O 协议缝合紧，提示工具手写灵；工具增强人，协作接目标，Workflow 死板 Agent 活。
