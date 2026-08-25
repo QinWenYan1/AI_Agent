@@ -87,6 +87,7 @@ Transformer 2017 年由 Google 提出，完全抛弃循环结构，通过`注意
 
 - **位置编码 (Positional Encoding)**：用正弦/余弦函数为每个位置生成唯一向量
   - 解决注意力机制不包含顺序信息的问题
+  - 位置编码的核心思想是，为输入序列中的每一个词元嵌入向量，都额外加上一个能代表其绝对位置和相对位置信息的“位置向量”
   - 公式：$PE_{(pos,2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$，$PE_{(pos,2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$
 
 > 📋 **术语提醒**：`Self-Attention(自注意力)` = 序列中每个词都"看"所有其他词，计算相关性权重后加权求和
