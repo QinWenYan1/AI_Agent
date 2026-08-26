@@ -25,8 +25,10 @@
 
 ### Part 2: 构建你的大语言模型智能体
 
-#### 第4章 智能体经典范式构建
-> ⏳ 待补充——`ReAct` 范式（Reasoning + Acting）
+#### [第4章 智能体经典范式构建](./part2-building-llm-agents/ch4-classic-agent-paradigms.md)
+- **核心**：从零实现三大经典范式——`ReAct`（思考-行动-观察循环）、`Plan-and-Solve`（先规划后执行）、`Reflection`（执行-反思-优化迭代），全部提示词模板与核心类逐字收录
+- **难点**：ReAct 输出解析与观测回填闭环、Executor 的状态管理、Reflection 三角色提示词协同与"无需改进"终止条件
+- **扩充**：工具三要素与 SerpApi 智能解析、ReAct 特点/局限/调试技巧、Reflection 成本收益分析（以成本换质量）、三范式选型对比表
 
 #### 第5章 基于低代码平台的智能体搭建
 > ⏳ 待补充——Dify/Coze 低代码平台
