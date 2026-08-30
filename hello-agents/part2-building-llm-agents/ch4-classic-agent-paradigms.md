@@ -149,13 +149,14 @@
 
 **工具是智能体与外部世界交互的"手和脚"，而工具描述是整个机制中最关键的部分**
 
-如果说大语言模型是智能体的大脑，那么**工具 (Tools)** 就是其与外部世界交互的"手和脚"。针对"华为最新手机"问题，需要为智能体提供网页搜索工具——原作选用 **SerpApi**，它通过 API 提供结构化的 Google 搜索结果，能直接返回"答案摘要框"或精确的知识图谱信息。
+- 如果说大语言模型是智能体的大脑，那么**工具 (Tools)** 就是其与外部世界交互的"手和脚"。
+- 针对"华为最新手机"问题，需要为智能体提供网页搜索工具
+- 原作选用 **SerpApi**，它通过 API 提供结构化的 Google 搜索结果，能直接返回"答案摘要框"或精确的知识图谱信息。
+    ```bash
+    pip install google-search-results
+    ```
 
-```bash
-pip install google-search-results
-```
-
-并前往 SerpApi 官网注册免费账户，将密钥加入 `.env`：`SERPAPI_API_KEY="YOUR_SERPAPI_API_KEY"`。
+- 并前往 SerpApi 官网注册免费账户，将密钥加入 `.env`：`SERPAPI_API_KEY="YOUR_SERPAPI_API_KEY"`。
 
 **（1）工具的三核心要素：**
 
@@ -163,56 +164,97 @@ pip install google-search-results
 2. **描述 (Description)**：一段清晰的自然语言描述，说明工具用途。**这是整个机制中最关键的部分**——LLM 依赖这段描述来判断何时使用哪个工具
 3. **执行逻辑 (Execution Logic)**：真正执行任务的函数或方法
 
-**搜索工具核心逻辑**（签名+要点）：
+- **搜索工具核心逻辑**（签名+要点）：
+    
 
-```python
-from serpapi import SerpApiClient
+    ```python
+    from serpapi import SerpApiClient
 
-def search(query: str) -> str:
-    """基于SerpApi的实战网页搜索引擎工具。
-    智能解析搜索结果，优先返回直接答案或知识图谱信息。"""
-```
+    def search(query: str) -> str:
+        """
+        一个基于SerpApi的实战网页搜索引擎工具。
+        它会智能地解析搜索结果，优先返回直接答案或知识图谱信息。
+        """
+        print(f"🔍 正在执行 [SerpApi] 网页搜索: {query}")
+        try:
+            api_key = os.getenv("SERPAPI_API_KEY")
+            if not api_key:
+                return "错误:SERPAPI_API_KEY 未在 .env 文件中配置。"
 
-- 请求参数：`engine="google"`、`gl="cn"`（国家代码）、`hl="zh-cn"`（语言代码）；未配置 `SERPAPI_API_KEY` 时直接返回错误提示串
-- **智能解析的优先级**（为 LLM 提供质量更高的信息输入）：
-  1. `answer_box_list`（答案摘要框列表）→ 直接拼接返回
-  2. `answer_box.answer`（答案摘要框）→ 返回精确答案
-  3. `knowledge_graph.description`（知识图谱）→ 返回描述
-  4. 以上都没有 → 返回**前三个有机结果**（`organic_results[:3]`）的标题+摘要
-- 全失败返回"对不起，没有找到关于 '{query}' 的信息。"；异常返回"搜索时发生错误： {e}"
+            params = {
+                "engine": "google",
+                "q": query,
+                "api_key": api_key,
+                "gl": "cn",  # 国家代码
+                "hl": "zh-cn", # 语言代码
+            }
+            
+            client = SerpApiClient(params)
+            results = client.get_dict()
+            
+            # 智能解析:优先寻找最直接的答案
+            if "answer_box_list" in results:
+                return "\n".join(results["answer_box_list"])
+            if "answer_box" in results and "answer" in results["answer_box"]:
+                return results["answer_box"]["answer"]
+            if "knowledge_graph" in results and "description" in results["knowledge_graph"]:
+                return results["knowledge_graph"]["description"]
+            if "organic_results" in results and results["organic_results"]:
+                # 如果没有直接答案，则返回前三个有机结果的摘要
+                snippets = [
+                    f"[{i+1}] {res.get('title', '')}\n{res.get('snippet', '')}"
+                    for i, res in enumerate(results["organic_results"][:3])
+                ]
+                return "\n\n".join(snippets)
+            
+            return f"对不起，没有找到关于 '{query}' 的信息。"
 
-**（2）通用工具执行器**——当智能体需要多种工具（搜索、计算、查数据库……）时，用统一的管理器注册和调度：
+        except Exception as e:
+            return f"搜索时发生错误: {e}"
 
-```python
-class ToolExecutor:
-    """一个工具执行器，负责管理和执行工具。"""
+    ```
 
-    def registerTool(self, name: str, description: str, func: callable): ...  # 注册工具；重名时警告并覆盖
-    def getTool(self, name: str) -> callable: ...        # 按名称取执行函数，不存在返回 None
-    def getAvailableTools(self) -> str: ...              # 返回 "- name: description" 多行格式化清单
-```
+    - 请求参数：`engine="google"`、`gl="cn"`（国家代码）、`hl="zh-cn"`（语言代码）；未配置 `SERPAPI_API_KEY` 时直接返回错误提示串
+    - **智能解析的优先级**（为 LLM 提供质量更高的信息输入）：
+        1. `answer_box_list`（答案摘要框列表）→ 直接拼接返回
+        2. `answer_box.answer`（答案摘要框）→ 返回精确答案
+        3. `knowledge_graph.description`（知识图谱）→ 返回描述
+        4. 以上都没有 → 返回**前三个有机结果**（`organic_results[:3]`）的标题+摘要
+    - 全失败返回"对不起，没有找到关于 '{query}' 的信息。"；异常返回"搜索时发生错误： {e}"
 
-内部维护 `self.tools: Dict[str, Dict[str, Any]]`，每个条目存 `{"description": ..., "func": ...}`。
+**（2）通用工具执行器**：
+- 当智能体需要多种工具（搜索、计算、查数据库……）时，用统一的管理器注册和调度
+- 内部维护 `self.tools: Dict[str, Dict[str, Any]]`，每个条目存 `{"description": ..., "func": ...}`
+    ```python
+    class ToolExecutor:
+        """一个工具执行器，负责管理和执行工具。"""
 
-**（3）注册与测试**——把 `search` 注册进执行器并模拟一次 `Action` 调用：
+        def registerTool(self, name: str, description: str, func: callable): ...  # 注册工具；重名时警告并覆盖
+        def getTool(self, name: str) -> callable: ...        # 按名称取执行函数，不存在返回 None
+        def getAvailableTools(self) -> str: ...              # 返回 "- name: description" 多行格式化清单
+    ```
 
-```python
-toolExecutor = ToolExecutor()
-search_description = "一个网页搜索引擎。当你需要回答关于时事、事实以及在你的知识库中找不到的信息时，应使用此工具。"
-toolExecutor.registerTool("Search", search_description, search)
-# 模拟 Action: Search['英伟达最新的GPU型号是什么']
-```
+**（3）注册与测试**：
+- 把 `search` 注册进执行器并模拟一次 `Action` 调用
 
-运行输出（节选）——返回了 RTX 50 系列等前三条有机结果摘要：
+    ```python
+    toolExecutor = ToolExecutor()
+    search_description = "一个网页搜索引擎。当你需要回答关于时事、事实以及在你的知识库中找不到的信息时，应使用此工具。"
+    toolExecutor.registerTool("Search", search_description, search)
+    # 模拟 Action: Search['英伟达最新的GPU型号是什么']
+    ```
 
-```
-工具 'Search' 已注册。
---- 可用的工具 ---
-- Search: 一个网页搜索引擎。当你需要回答关于时事、事实以及在你的知识库中找不到的信息时，应使用此工具。
---- 执行 Action: Search['英伟达最新的GPU型号是什么'] ---
-👀 观察: [1] GeForce RTX 50 系列显卡
-GeForce RTX™ 50 系列GPU 搭载NVIDIA Blackwell 架构……
-```
+运行输出（节选）：
+- 返回了 RTX 50 系列等前三条有机结果摘要
+
+    ```
+    工具 'Search' 已注册。
+    --- 可用的工具 ---
+    - Search: 一个网页搜索引擎。当你需要回答关于时事、事实以及在你的知识库中找不到的信息时，应使用此工具。
+    --- 执行 Action: Search['英伟达最新的GPU型号是什么'] ---
+    👀 观察: [1] GeForce RTX 50 系列显卡
+    GeForce RTX™ 50 系列GPU 搭载NVIDIA Blackwell 架构……
+    ```
 
 > ⚠️ **关键认知**：工具描述是写给 **LLM** 看的"使用说明书"，不是写给人类程序员看的注释——描述的质量直接决定智能体能否在正确的时机选择正确的工具
 >
