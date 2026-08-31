@@ -304,7 +304,7 @@ History: {history}
 
 > ⚠️ **模板细节**：`{{tool_name}}` 双花括号是 Python `str.format` 的转义——渲染后变成字面量 `{tool_name}` 给模型看，而不是被当作占位符替换掉
 
-**（2）核心循环的实现**——`run` 方法是入口，`while` 循环构成 ReAct 主体，`max_steps` 是**防止无限循环耗尽资源的安全阀**：
+**（2）核心循环的实现**：`run` 方法是入口，`while` 循环构成 ReAct 主体，`max_steps` 是**防止无限循环耗尽资源的安全阀**
 
 ```python
 class ReActAgent:
